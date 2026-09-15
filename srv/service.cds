@@ -4,7 +4,7 @@ using { supplierportal as db } from '../db/schema';
 
 service SupplierManagementService {
     entity Applications as projection on db.SupplierApplications;
-
+ 
 //başvuruyu gönderilmiş duruma geçirmek için s.aktivasyonu
     action submitApplication(applicationId : UUID) returns String;
  
@@ -16,6 +16,13 @@ service SupplierManagementService {
 
     action rejectApplication(
         applicationId : UUID,
-        reason : String
+        reason : String,
+        revisionFields : array of String
     ) returns String;
+
+    action reapplyApplication(
+        applicationId : UUID,
+        changes : LargeString
+    ) returns String;
+
 }

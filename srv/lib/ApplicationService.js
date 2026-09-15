@@ -26,17 +26,62 @@ class ApplicationService {
         return this.updateStatus(applicationId, 'Approved');
     }
 
-    async rejectApplication(applicationId, reason) {
-    const { SupplierApplications } = cds.entities('supplierportal');
+    async rejectApplication(applicationId, reason, revisionFields = []) {
+        const { SupplierApplications, ApplicationRevisionFields } =
+            cds.entities('supplierportal');
 
-    return UPDATE(SupplierApplications)
-        .set({
-            status: 'Rejected',
-            rejectionReason: reason,
-            reapplyAllowed: true
-        })
-        .where({ ID: applicationId });
-}
+        await UPDATE(SupplierApplications)
+            .set({
+                status: 'Rejected',
+                rejectionReason: reason,
+                reapplyAllowed: true
+            })
+            .where({ ID: applicationId });
+
+        if (revisionFields.length > 0) {
+            const entries = revisionFields.map(fieldName => ({
+                application_ID: applicationId,
+                fieldName: fieldName
+            }));
+
+            await INSERT.into(ApplicationRevisionFields).entries(entries);
+        }
+    }
+
+    async reapplyApplication(applicationId, changes) {
+        const { SupplierApplications, ApplicationRevisionFields } =
+            cds.entities('supplierportal');
+
+        const revisionFields = await SELECT
+            .from(ApplicationRevisionFields)
+            .where({ application_ID: applicationId });
+
+        const allowedFields = revisionFields.map(item => item.fieldName);
+        const requestedFields = Object.keys(changes);
+
+        const invalidFields = requestedFields.filter(
+            field => !allowedFields.includes(field)
+        );
+
+        if (invalidFields.length > 0) {
+            throw new Error(
+                `Fields not allowed for revision: ${invalidFields.join(', ')}`
+            );
+        }
+
+        await UPDATE(SupplierApplications)
+            .set({
+                ...changes,
+                status: 'Submitted',
+                rejectionReason: null,
+                reapplyAllowed: false
+            })
+            .where({ ID: applicationId });
+
+        await DELETE
+            .from(ApplicationRevisionFields)
+            .where({ application_ID: applicationId });
+    }
 }
 
 module.exports = ApplicationService;

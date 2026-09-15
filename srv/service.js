@@ -77,10 +77,44 @@ this.on("rejectApplication", async (request) => {
 
     await applicationService.rejectApplication(
         request.data.applicationId,
-        request.data.reason
+        request.data.reason,
+        request.data.revisionFields
     );
 
     return "Application rejected successfully";
+});
+
+this.on("reapplyApplication", async (request) => {
+    const application = await applicationService.getApplicationById(
+        request.data.applicationId
+    );
+
+    if (!application) {
+        return request.reject(404, "Application not found");
+    }
+
+    if (application.status !== "Rejected" || !application.reapplyAllowed) {
+        return request.reject(400, "Application is not eligible for reapplication");
+    }
+
+    let changes;
+
+    try {
+        changes = JSON.parse(request.data.changes);
+    } catch {
+        return request.reject(400, "Invalid changes data");
+    }
+
+    try {
+        await applicationService.reapplyApplication(
+            request.data.applicationId,
+            changes
+        );
+    } catch (error) {
+        return request.reject(400, error.message);
+    }
+
+    return "Application reapplied successfully";
 });
 
 });
