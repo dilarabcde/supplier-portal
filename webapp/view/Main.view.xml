@@ -1,0 +1,22 @@
+<mvc:View
+    controllerName="com.abics.supplierportal.controller.Main"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc">
+
+    <Page
+        id="page"
+        title="{i18n>appTitle}">
+
+	<content>
+		<Image
+			src="images/bremen.jpg"
+			width="100%"
+			height="100%"
+			densityAware="false" />
+	</content>
+
+
+    </Page>
+
+</mvc:View>

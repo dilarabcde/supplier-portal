@@ -4,11 +4,9 @@ using { supplierportal as db } from '../db/schema';
 
 service SupplierManagementService {
     entity Applications as projection on db.SupplierApplications;
- 
+    entity ApplicationHistory as projection on db.ApplicationHistory;
 //başvuruyu gönderilmiş duruma geçirmek için s.aktivasyonu
     action submitApplication(applicationId : UUID) returns String;
- 
-    action getApplicationStatus(applicationId : UUID) returns db.ApplicationStatus;
 
     action startReview(applicationId : UUID) returns String;
 

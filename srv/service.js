@@ -5,18 +5,6 @@ module.exports = cds.service.impl(function () {
 
     const applicationService = new ApplicationService();
 
-    this.on("getApplicationStatus", async (request) => {
-        const application = await applicationService.getApplicationById(
-            request.data.applicationId
-        );
-
-        if (!application) {
-            return request.reject(404, "Application not found");
-        }
-
-        return application.status;
-    });
-
     this.on("submitApplication", async (request) => {
     const application = await applicationService.getApplicationById(
         request.data.applicationId
@@ -75,11 +63,15 @@ this.on("rejectApplication", async (request) => {
         return request.reject(400, "Rejection reason is required");
     }
 
-    await applicationService.rejectApplication(
-        request.data.applicationId,
-        request.data.reason,
-        request.data.revisionFields
-    );
+    try {
+        await applicationService.rejectApplication(
+            request.data.applicationId,
+            request.data.reason,
+            request.data.revisionFields
+        );
+    } catch (error) {
+        return request.reject(400, error.message);
+    }
 
     return "Application rejected successfully";
 });

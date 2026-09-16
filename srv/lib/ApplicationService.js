@@ -2,6 +2,18 @@ const cds = require('@sap/cds');
 
 class ApplicationService {
 
+    async addHistory(applicationId, status, action, reason = null, performedBy = null) {
+        const { ApplicationHistory } = cds.entities('supplierportal');
+
+        return INSERT.into(ApplicationHistory).entries({
+            application_ID: applicationId,
+            status,
+            action,
+            reason,
+            performedBy
+        });
+    }
+
     async getApplicationById(applicationId) {
         const { SupplierApplications } = cds.entities('supplierportal');
 
@@ -19,16 +31,52 @@ class ApplicationService {
     }
 
     async startReview(applicationId) {
-        return this.updateStatus(applicationId, 'InReview');
+        await this.updateStatus(applicationId, 'InReview');
+
+        await this.addHistory(
+            applicationId,
+            'InReview',
+            'ReviewStarted'
+        );
     }
 
     async approveApplication(applicationId) {
-        return this.updateStatus(applicationId, 'Approved');
+        await this.updateStatus(applicationId, 'Approved');
+
+        await this.addHistory(
+            applicationId,
+            'Approved',
+            'Approved'
+        );
     }
 
     async rejectApplication(applicationId, reason, revisionFields = []) {
         const { SupplierApplications, ApplicationRevisionFields } =
             cds.entities('supplierportal');
+
+        const allowedRevisionFields = [
+            "companyName",
+            "contactPerson",
+            "phoneCountryCode",
+            "phoneNumber",
+            "country",
+            "category",
+            "taxNumber",
+            "website",
+            "address",
+            "notes",
+            "certificate"
+        ];
+
+        const invalidRevisionFields = revisionFields.filter(
+            field => !allowedRevisionFields.includes(field)
+        );
+
+        if (invalidRevisionFields.length > 0) {
+            throw new Error(
+                `Invalid revision fields: ${invalidRevisionFields.join(", ")}`
+            );
+        }
 
         await UPDATE(SupplierApplications)
             .set({
@@ -37,7 +85,12 @@ class ApplicationService {
                 reapplyAllowed: true
             })
             .where({ ID: applicationId });
-
+        await this.addHistory(
+            applicationId,
+            'Rejected',
+            'Rejected',
+            reason
+        );
         if (revisionFields.length > 0) {
             const entries = revisionFields.map(fieldName => ({
                 application_ID: applicationId,
@@ -77,7 +130,11 @@ class ApplicationService {
                 reapplyAllowed: false
             })
             .where({ ID: applicationId });
-
+        await this.addHistory(
+            applicationId,
+            'Submitted',
+            'Reapplied'
+        );
         await DELETE
             .from(ApplicationRevisionFields)
             .where({ application_ID: applicationId });
