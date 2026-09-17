@@ -23,4 +23,12 @@ service SupplierManagementService {
         changes : LargeString
     ) returns String;
 
+    action register(
+        email : String,
+        password : String
+    ) returns String;
+    
+    action verifyEmail(
+        token : String
+    ) returns String;
 }

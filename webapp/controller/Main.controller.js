@@ -1,9 +1,177 @@
-sap.ui.define(["./BaseController", "sap/m/MessageBox"], function (BaseController, MessageBox) {
-	"use strict";
+sap.ui.define([
+    "./BaseController"
+], function (BaseController) {
+    "use strict";
 
-	return BaseController.extend("com.abics.supplierportal.controller.Main", {
-		sayHello: function () {
-			MessageBox.show("Hello World!");
-		}
-	});
+    return BaseController.extend("com.abics.supplierportal.controller.Main", {
+
+        onLoginPress: function () {
+            this.byId("welcomeArea").setWidth("65%");
+
+            this.byId("registerArea").setVisible(false);
+            this.byId("loginArea").setVisible(true);
+
+            this.byId("loginButton").setVisible(false);
+            this.byId("registerButton").setVisible(true);
+        },
+
+        onCloseLoginPress: function () {
+            this.byId("loginArea").setVisible(false);
+            this.byId("welcomeArea").setWidth("100%");
+
+            this.byId("loginButton").setVisible(true);
+            this.byId("registerButton").setVisible(true);
+        },
+
+        onRegisterPress: function () {
+            this.byId("welcomeArea").setWidth("65%");
+
+            this.byId("loginArea").setVisible(false);
+            this.byId("registerArea").setVisible(true);
+
+            this.byId("registerButton").setVisible(false);
+            this.byId("loginButton").setVisible(true);
+        },
+		onPasswordLiveChange: function (event) {
+			const password = event.getParameter("value");
+			this.byId("passwordRules").setVisible(password.length > 0);
+
+			const rules = {
+				ruleLength: password.length >= 8,
+				ruleUppercase: /[A-Z]/.test(password),
+				ruleLowercase: /[a-z]/.test(password),
+				ruleNumber: /[0-9]/.test(password),
+				ruleSpecial: /[^A-Za-z0-9]/.test(password)
+			};
+
+			Object.keys(rules).forEach(function (id) {
+				const rule = this.byId(id);
+				const isValid = rules[id];
+
+				rule.setState(isValid ? "Success" : "Error");
+				rule.setIcon(
+					isValid
+						? "sap-icon://accept"
+						: "sap-icon://decline"
+				);
+			}.bind(this));
+		},
+		onConfirmPasswordLiveChange: function (event) {
+			const confirmPassword = event.getParameter("value");
+			const password = this.byId("registerPassword").getValue();
+			const status = this.byId("passwordMatchStatus");
+
+			if (confirmPassword.length === 0) {
+				status.setVisible(false);
+				return;
+			}
+
+			status.setVisible(true);
+
+			if (password === confirmPassword) {
+				status.setText("Passwords match");
+				status.setState("Success");
+				status.setIcon("sap-icon://accept");
+			} else {
+				status.setText("Passwords do not match");
+				status.setState("Error");
+				status.setIcon("sap-icon://decline");
+			}
+		},
+		onRegisterSubmit: async function () {
+			const emailInput = this.byId("registerEmail");
+			const passwordInput = this.byId("registerPassword");
+			const confirmPasswordInput = this.byId("registerPasswordConfirm");
+
+			const email = emailInput.getValue().trim();
+			const password = passwordInput.getValue();
+			const confirmPassword = confirmPasswordInput.getValue();
+
+			const emailValid =
+				/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+			const passwordValid =
+				password.length >= 8 &&
+				/[A-Z]/.test(password) &&
+				/[a-z]/.test(password) &&
+				/[0-9]/.test(password) &&
+				/[^A-Za-z0-9]/.test(password);
+
+			const passwordsMatch =
+				password === confirmPassword &&
+				confirmPassword.length > 0;
+
+			// E-Mail kontrolü
+			emailInput.setValueState(
+				emailValid ? "None" : "Error"
+			);
+
+			emailInput.setValueStateText(
+				"Please enter a valid e-mail address."
+			);
+
+			// Password kontrolü
+			passwordInput.setValueState(
+				passwordValid ? "None" : "Error"
+			);
+
+			passwordInput.setValueStateText(
+				"Please meet all password requirements."
+			);
+
+			// Confirm Password kontrolü
+			confirmPasswordInput.setValueState(
+				passwordsMatch ? "None" : "Error"
+			);
+
+			confirmPasswordInput.setValueStateText(
+				"Passwords do not match."
+			);
+
+			// Her şey doğru değilse kayıt işlemine devam etme
+			if (!emailValid || !passwordValid || !passwordsMatch) {
+				return;
+			}
+
+			try {
+				const response = await fetch(
+					"http://localhost:4004/odata/v4/supplier-management/register",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							email: email,
+							password: password
+						})
+					}
+				);
+
+				const result = await response.json();
+
+				if (!response.ok) {
+					throw new Error(
+						result.error?.message || "Registration failed."
+					);
+				}
+
+				console.log("Registration successful:", result);
+				this.byId("registerForm").setVisible(false);
+				this.byId("registerSuccessArea").setVisible(true);
+
+			} catch (error) {
+				console.error("Registration error:", error);
+			}
+		},
+
+        onCloseRegisterPress: function () {
+            this.byId("registerArea").setVisible(false);
+            this.byId("welcomeArea").setWidth("100%");
+
+            this.byId("loginButton").setVisible(true);
+            this.byId("registerButton").setVisible(true);
+        }
+
+    });
 });

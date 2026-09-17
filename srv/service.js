@@ -1,4 +1,6 @@
 const cds = require("@sap/cds");
+const crypto = require("crypto");
+const { Resend } = require("resend");
 const ApplicationService = require("./lib/ApplicationService");
 
 module.exports = cds.service.impl(function () {
@@ -109,4 +111,110 @@ this.on("reapplyApplication", async (request) => {
     return "Application reapplied successfully";
 });
 
+this.on("register", async (request) => {
+    const email = request.data.email?.trim().toLowerCase();
+    const password = request.data.password;
+
+    if (!email || !password) {
+        return request.reject(400, "E-mail and password are required");
+    }
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!emailValid) {
+        return request.reject(400, "Invalid e-mail address");
+    }
+
+    const passwordValid =
+        password.length >= 8 &&
+        /[A-Z]/.test(password) &&
+        /[a-z]/.test(password) &&
+        /[0-9]/.test(password) &&
+        /[^A-Za-z0-9]/.test(password);
+
+    if (!passwordValid) {
+        return request.reject(400, "Password does not meet the requirements");
+    }
+
+    const { SupplierUsers } = cds.entities("supplierportal");
+
+    const existingUser = await SELECT.one
+        .from(SupplierUsers)
+        .where({ email });
+
+    if (existingUser) {
+        return request.reject(409, "E-mail is already registered");
+    }
+
+    const salt = crypto.randomBytes(16).toString("hex");
+
+    const derivedKey = await new Promise((resolve, reject) => {
+        crypto.scrypt(password, salt, 64, (error, key) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(key);
+            }
+        });
+    });
+
+const passwordHash = `${salt}:${derivedKey.toString("hex")}`;
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    await INSERT.into(SupplierUsers).entries({
+        email,
+        passwordHash,
+        emailVerified: false,
+        verificationToken
+    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    const verificationUrl =`http://localhost:4004/verify-email?token=${verificationToken}`;
+    
+    const { error } = await resend.emails.send({
+        from: "Supplier Portal <onboarding@resend.dev>",
+        to: email,
+        subject: "Verify your Supplier Portal account",
+        html: `
+            <h2>Supplier Portal</h2>
+            <p>Thank you for registering.</p>
+            <p>Please verify your e-mail address by clicking the link below:</p>
+            <a href="${verificationUrl}">Verify E-mail</a>
+        `
+    });
+
+    if (error) {
+        console.error("Verification e-mail error:", error);
+        return request.reject(500, "Verification e-mail could not be sent");
+    }
+
+    return "Registration successful";
+});
+this.on("verifyEmail", async (request) => {
+    const token = request.data.token;
+
+    if (!token) {
+        return request.reject(400, "Verification token is required");
+    }
+
+    const { SupplierUsers } = cds.entities("supplierportal");
+
+    const user = await SELECT.one
+        .from(SupplierUsers)
+        .where({ verificationToken: token });
+
+    if (!user) {
+        return request.reject(400, "Invalid verification token");
+    }
+
+    await UPDATE(SupplierUsers)
+        .set({
+            emailVerified: true,
+            verificationToken: null
+        })
+        .where({ ID: user.ID });
+
+    return "E-mail verified successfully";
+});
 });

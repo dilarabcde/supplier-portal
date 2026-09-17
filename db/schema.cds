@@ -10,8 +10,10 @@ type ApplicationStatus : String enum {
 }
 
 entity SupplierUsers : cuid, managed {
-    email : String(255) not null;
-    passwordHash : String(255) not null;
+    email             : String(255) not null;
+    passwordHash      : String(255) not null;
+    emailVerified     : Boolean default false;
+    verificationToken : String(255);
 }
 
 entity SupplierApplications : cuid, managed {
