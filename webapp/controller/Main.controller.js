@@ -4,34 +4,43 @@ sap.ui.define([
     "use strict";
 
     return BaseController.extend("com.abics.supplierportal.controller.Main", {
+		onInit: function () {
+			const rememberedEmail = localStorage.getItem("rememberedEmail");
 
-        onLoginPress: function () {
-            this.byId("welcomeArea").setWidth("65%");
+			if (rememberedEmail) {
+				this.byId("loginEmail").setValue(rememberedEmail);
+				this.byId("rememberMe").setSelected(true);
+			}
+		},
 
-            this.byId("registerArea").setVisible(false);
-            this.byId("loginArea").setVisible(true);
+		onLoginPress: function () {
 
-            this.byId("loginButton").setVisible(false);
-            this.byId("registerButton").setVisible(true);
-        },
+			this.byId("registerArea").setVisible(false);
+			this.byId("loginArea").setVisible(true);
 
-        onCloseLoginPress: function () {
-            this.byId("loginArea").setVisible(false);
-            this.byId("welcomeArea").setWidth("100%");
+			this.byId("homeButtons").setVisible(false);
 
-            this.byId("loginButton").setVisible(true);
-            this.byId("registerButton").setVisible(true);
-        },
+		},
 
-        onRegisterPress: function () {
-            this.byId("welcomeArea").setWidth("65%");
+		onCloseLoginPress: function () {
+			this.byId("loginArea").setVisible(false);
+			this.byId("homeButtons").setVisible(true);
+		},
 
-            this.byId("loginArea").setVisible(false);
-            this.byId("registerArea").setVisible(true);
+		onRegisterPress: function () {
+			this.byId("loginArea").setVisible(false);
+			this.byId("registerArea").setVisible(true);
+			this.byId("homeButtons").setVisible(false);
+		},
+		onToggleRegisterPassword: function () {
+			const input = this.byId("registerPassword");
+			input.setType(input.getType() === "Password" ? "Text" : "Password");
+		},
 
-            this.byId("registerButton").setVisible(false);
-            this.byId("loginButton").setVisible(true);
-        },
+		onToggleRegisterPasswordConfirm: function () {
+			const input = this.byId("registerPasswordConfirm");
+			input.setType(input.getType() === "Password" ? "Text" : "Password");
+		},
 		onPasswordLiveChange: function (event) {
 			const password = event.getParameter("value");
 			this.byId("passwordRules").setVisible(password.length > 0);
@@ -164,14 +173,71 @@ sap.ui.define([
 				console.error("Registration error:", error);
 			}
 		},
+		onGoToLogin: function () {
+			this.byId("registerArea").setVisible(false);
+			this.byId("loginArea").setVisible(true);
 
-        onCloseRegisterPress: function () {
-            this.byId("registerArea").setVisible(false);
-            this.byId("welcomeArea").setWidth("100%");
+			this.byId("registerSuccessArea").setVisible(false);
+			this.byId("registerForm").setVisible(true);
 
-            this.byId("loginButton").setVisible(true);
-            this.byId("registerButton").setVisible(true);
+			this.byId("homeButtons").setVisible(false);
+		},
+		onToggleLoginPassword: function () {
+			const passwordInput = this.byId("loginPassword");
+
+			if (passwordInput.getType() === "Password") {
+				passwordInput.setType("Text");
+				passwordInput.setValueHelpIconSrc("sap-icon://hide");
+			} else {
+				passwordInput.setType("Password");
+				passwordInput.setValueHelpIconSrc("sap-icon://show");
+			}
+		},
+		onLoginSubmit: async function () {
+			const email = this.byId("loginEmail").getValue().trim();
+			const password = this.byId("loginPassword").getValue();
+
+    try {
+        const response = await fetch(
+            "http://localhost:4004/odata/v4/supplier-management/login",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error?.message || "Login failed."
+            );
         }
 
-    });
-});
+        console.log("Login successful:", result);
+		const rememberMe = this.byId("rememberMe").getSelected();
+
+		if (rememberMe) {
+			localStorage.setItem("rememberedEmail", email);
+		} else {
+			localStorage.removeItem("rememberedEmail");
+		}
+
+    } catch (error) {
+        console.error("Login error:", error);
+    }
+},
+
+		onCloseRegisterPress: function () {
+			this.byId("registerArea").setVisible(false);
+			this.byId("homeButtons").setVisible(true);
+		}
+
+			});
+		});

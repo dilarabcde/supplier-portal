@@ -217,4 +217,51 @@ this.on("verifyEmail", async (request) => {
 
     return "E-mail verified successfully";
 });
+this.on("login", async (request) => {
+    const email = request.data.email?.trim().toLowerCase();
+    const password = request.data.password;
+
+    if (!email || !password) {
+        return request.reject(400, "E-mail and password are required");
+    }
+
+    const { SupplierUsers } = cds.entities("supplierportal");
+
+    const user = await SELECT.one
+        .from(SupplierUsers)
+        .where({ email });
+
+    if (!user) {
+        return request.reject(401, "Invalid e-mail or password");
+    }
+
+    if (!user.emailVerified) {
+        return request.reject(403, "Please verify your e-mail before logging in");
+    }
+
+    const [salt, storedHash] = user.passwordHash.split(":");
+
+    const derivedKey = await new Promise((resolve, reject) => {
+        crypto.scrypt(password, salt, 64, (error, key) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(key);
+            }
+        });
+    });
+
+    const storedHashBuffer = Buffer.from(storedHash, "hex");
+    const derivedKeyBuffer = Buffer.from(derivedKey);
+
+    const passwordMatches =
+        storedHashBuffer.length === derivedKeyBuffer.length &&
+        crypto.timingSafeEqual(storedHashBuffer, derivedKeyBuffer);
+
+    if (!passwordMatches) {
+        return request.reject(401, "Invalid e-mail or password");
+    }
+
+    return "Login successful";
+});
 });

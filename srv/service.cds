@@ -27,6 +27,11 @@ service SupplierManagementService {
         email : String,
         password : String
     ) returns String;
+
+    action login(
+        email    : String,
+        password : String
+    ) returns String;
     
     action verifyEmail(
         token : String

@@ -8,63 +8,71 @@
     <Page
         id="page"
         showHeader="false"
-        enableScrolling="false">
+        enableScrolling="false"
+        backgroundDesign="Solid">
 
         <content>
 
-            <!-- Tam ekran Bremen arka planı -->
-            <core:HTML
-                content='&lt;img src="images/bremen.jpg"
-                style="position:fixed;
-                       top:0;
-                       left:0;
-                       width:100vw;
-                       height:100vh;
-                       object-fit:cover;
-                       z-index:0;" /&gt;' />
-
             <!-- Ana ekran düzeni -->
-            <HBox
-                id="mainLayout"
-                fitContainer="true"
-                width="100%"
-                height="100%"
-                alignItems="Stretch">
+ 
+ <HBox
+    id="mainLayout"
+    fitContainer="true"
+    width="100%"
+    height="100vh"
+    alignItems="Stretch">
 
-                <!-- SOL / KARŞILAMA ALANI -->
-                <VBox
-                    id="welcomeArea"
-                    width="100%"
-                    height="100%"
-                    justifyContent="Center"
-                    alignItems="Center">
+    <!-- SOL / FOTOĞRAF -->
+    <VBox
+        width="50%"
+        height="100%"
+        fitContainer="true">
 
-                    <Image
-                        src="images/logo.png"
-                        width="420px"
-                        densityAware="false"
-                        class="sapUiMediumMarginBottom" />
+        <Image
+            src="images/bremen.jpg"
+            width="100%"
+            height="100vh"
+            densityAware="false"
+            decorative="true" />
+    </VBox>
 
-                    <HBox justifyContent="Center">
+    <!-- SAĞ / ANA ALAN -->
+    <VBox
+        width="50%"
+        height="100%"
+        fitContainer="true"
+        justifyContent="Center"
+        alignItems="Center">
 
-                        <Button
-                            id="loginButton"
-                            text="{i18n>loginButton}"
-                            type="Emphasized"
-                            width="10rem"
-                            press=".onLoginPress"
-                            class="sapUiTinyMarginEnd" />
+        <!-- LOGO -->
+        <Image
+            id="mainLogo"
+            src="images/logo.png"
+            width="420px"
+            densityAware="false"
+            class="sapUiMediumMarginBottom" />
 
-                        <Button
-                            id="registerButton"
-                            text="{i18n>registerButton}"
-                            type="Emphasized"
-                            width="10rem"
-                            press=".onRegisterPress"
-                            class="sapUiTinyMarginBegin" />
-                    </HBox>
+        <!-- ANA BUTONLAR -->
+        <HBox
+            id="homeButtons"
+            justifyContent="Center">
 
-                </VBox>
+            <Button
+                id="loginButton"
+                text="{i18n>loginButton}"
+                type="Emphasized"
+                width="10rem"
+                press=".onLoginPress"
+                class="sapUiTinyMarginEnd" />
+
+            <Button
+                id="registerButton"
+                text="{i18n>registerButton}"
+                type="Emphasized"
+                width="10rem"
+                press=".onRegisterPress"
+                class="sapUiTinyMarginBegin" />
+        </HBox>
 
 
                 <!-- SAĞ / LOGIN ALANI -->
@@ -72,7 +80,6 @@
                     id="loginArea"
                     visible="false"
                     width="32rem"
-                    height="100%"
                     justifyContent="Center"
                     class="sapUiLargeMarginEnd">
 
@@ -125,13 +132,22 @@
                                 type="Password"
                                 placeholder="Password"
                                 width="100%"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleLoginPassword"
                                 class="sapUiMediumMarginBottom" />
 
                             <!-- Login -->
+                            <CheckBox
+                                id="rememberMe"
+                                text="Remember me"
+                                selected="false"
+                                class="sapUiSmallMarginBottom" />
                             <Button
                                 text="{i18n>loginButton}"
                                 type="Emphasized"
-                                width="100%" />
+                                width="100%"
+                                press=".onLoginSubmit" />
 
                         </VBox>
 
@@ -143,7 +159,6 @@
                     id="registerArea"
                     visible="false"
                     width="32rem"
-                    height="100%"
                     justifyContent="Center"
                     class="sapUiLargeMarginEnd">
 
@@ -198,12 +213,16 @@
                                 placeholder="Password"
                                 width="100%"
                                 liveChange=".onPasswordLiveChange"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleRegisterPassword"
                                 class="sapUiSmallMarginBottom" />
 
                             <!-- Confirm Password -->
                             <Label
                                 text="Confirm Password"
-                                class="sapUiTinyMarginBottom" />
+                                class="sapUiTinyMarginBottom"
+                                />
 
                             <Input
                                 id="registerPasswordConfirm"
@@ -211,6 +230,9 @@
                                 placeholder="Confirm Password"
                                 width="100%"
                                 liveChange=".onConfirmPasswordLiveChange"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleRegisterPasswordConfirm"
                                 class="sapUiSmallMarginBottom" />
 
                             <ObjectStatus
@@ -295,9 +317,21 @@
                                 textAlign="Center"
                                 width="24rem" />
 
+                            <core:Icon
+                                src="sap-icon://navigation-down-arrow"
+                                size="1.5rem"
+                                class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+
+                            <Button
+                                text="Go to Login"
+                                type="Emphasized"
+                                width="10rem"
+                                press=".onGoToLogin" />
+
                         </VBox>
                     </Panel>
 
+                </VBox>
                 </VBox>
             </HBox>
 
