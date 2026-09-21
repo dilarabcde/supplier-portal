@@ -221,6 +221,8 @@ sap.ui.define([
         }
 
         console.log("Login successful:", result);
+
+		this.getOwnerComponent().getRouter().navTo("application");
 		const rememberMe = this.byId("rememberMe").getSelected();
 
 		if (rememberMe) {
@@ -228,6 +230,7 @@ sap.ui.define([
 		} else {
 			localStorage.removeItem("rememberedEmail");
 		}
+	
 
     } catch (error) {
         console.error("Login error:", error);

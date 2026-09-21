@@ -112,25 +112,25 @@
 
                             <!-- E-Mail -->
                             <Label
-                                text="E-Mail"
+                                text="{i18n>emailLabel}"
                                 class="sapUiTinyMarginBottom" />
 
                             <Input
                                 id="loginEmail"
                                 type="Email"
-                                placeholder="E-Mail"
+                                placeholder="{i18n>emailPlaceholder}"
                                 width="100%"
                                 class="sapUiMediumMarginBottom" />
 
                             <!-- Password -->
                             <Label
-                                text="Password"
+                                text="{i18n>passwordLabel}"
                                 class="sapUiTinyMarginBottom" />
 
                             <Input
                                 id="loginPassword"
                                 type="Password"
-                                placeholder="Password"
+                                placeholder="{i18n>passwordPlaceholder}"
                                 width="100%"
                                 showValueHelp="true"
                                 valueHelpIconSrc="sap-icon://show"
@@ -140,7 +140,7 @@
                             <!-- Login -->
                             <CheckBox
                                 id="rememberMe"
-                                text="Remember me"
+                                text="{i18n>rememberMe}"
                                 selected="false"
                                 class="sapUiSmallMarginBottom" />
                             <Button
@@ -192,25 +192,25 @@
 
                             <!-- E-Mail -->
                             <Label
-                                text="E-Mail"
+                                text="{i18n>emailLabel}"
                                 class="sapUiTinyMarginBottom" />
 
                             <Input
                                 id="registerEmail"
                                 type="Email"
-                                placeholder="E-Mail"
+                                placeholder="{i18n>emailPlaceholder}"
                                 width="100%"
                                 class="sapUiSmallMarginBottom" />
 
                             <!-- Password -->
                             <Label
-                                text="Password"
+                                text="{i18n>passwordLabel}"
                                 class="sapUiTinyMarginBottom" />
 
                             <Input
                                 id="registerPassword"
                                 type="Password"
-                                placeholder="Password"
+                                placeholder="{i18n>passwordPlaceholder}"
                                 width="100%"
                                 liveChange=".onPasswordLiveChange"
                                 showValueHelp="true"
@@ -220,14 +220,14 @@
 
                             <!-- Confirm Password -->
                             <Label
-                                text="Confirm Password"
+                                text="{i18n>confirmPasswordLabel}"
                                 class="sapUiTinyMarginBottom"
                                 />
 
                             <Input
                                 id="registerPasswordConfirm"
                                 type="Password"
-                                placeholder="Confirm Password"
+                                placeholder="{i18n>confirmPasswordPlaceholder}"
                                 width="100%"
                                 liveChange=".onConfirmPasswordLiveChange"
                                 showValueHelp="true"
@@ -237,7 +237,7 @@
 
                             <ObjectStatus
                                 id="passwordMatchStatus"
-                                text="Passwords do not match"
+                                text="{i18n>passwordsDoNotMatch}"
                                 state="Error"
                                 icon="sap-icon://decline"
                                 visible="false"
@@ -250,36 +250,36 @@
                                 class="sapUiSmallMarginBottom">
 
                                 <Text
-                                    text="Password must contain:"
+                                    text="{i18n>passwordRequirements}"
                                     class="sapUiTinyMarginBottom" />
 
                                 <ObjectStatus
                                     id="ruleLength"
-                                    text="At least 8 characters"
+                                    text="{i18n>passwordRuleLength}"
                                     state="Error"
                                     icon="sap-icon://decline" />
 
                                 <ObjectStatus
                                     id="ruleUppercase"
-                                    text="One uppercase letter"
+                                    text="{i18n>passwordRuleUppercase}"
                                     state="Error"
                                     icon="sap-icon://decline" />
 
                                 <ObjectStatus
                                     id="ruleLowercase"
-                                    text="One lowercase letter"
+                                    text="{i18n>passwordRuleLowercase}"
                                     state="Error"
                                     icon="sap-icon://decline" />
 
                                 <ObjectStatus
                                     id="ruleNumber"
-                                    text="One number"
+                                    text="{i18n>passwordRuleNumber}"
                                     state="Error"
                                     icon="sap-icon://decline" />
 
                                 <ObjectStatus
                                     id="ruleSpecial"
-                                    text="One special character"
+                                    text="{i18n>passwordRuleSpecial}"
                                     state="Error"
                                     icon="sap-icon://decline" />
 
@@ -308,12 +308,12 @@
                                 class="sapUiMediumMarginBottom" />
 
                             <Title
-                                text="Check your e-mail"
+                                text="{i18n>checkEmail}"
                                 level="H2"
                                 class="sapUiSmallMarginBottom" />
 
                             <Text
-                                text="We sent you a verification link. Please check your inbox to verify your account."
+                                text="{i18n>checkEmail}"
                                 textAlign="Center"
                                 width="24rem" />
 
@@ -323,7 +323,7 @@
                                 class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
 
                             <Button
-                                text="Go to Login"
+                                text="{i18n>goToLogin}"
                                 type="Emphasized"
                                 width="10rem"
                                 press=".onGoToLogin" />

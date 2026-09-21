@@ -33,9 +33,14 @@ entity SupplierApplications : cuid, managed {
     supplier : Association to one SupplierUsers;
     status : ApplicationStatus default 'Submitted';
 
-    certificate : LargeBinary; //hanada saklanacak binary
+    certificate : LargeBinary
+        @Core.MediaType: certificateType
+        @Core.ContentDisposition.Filename: certificateName;
+
     certificateName : String(255);
-    certificateType : String(100);
+
+    certificateType : String(100)
+        @Core.IsMediaType;
 
 // red gerekçesi ve başvururnun düzeltilmesi için izin
     rejectionReason : String(1000);

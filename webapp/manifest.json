@@ -53,7 +53,7 @@
 				"type": "sap.ui.model.resource.ResourceModel",
 				"settings": {
 					"bundleName": "com.abics.supplierportal.i18n.i18n",
-					"supportedLocales": ["en", "de"],
+					"supportedLocales": ["en", "tr"],
 					"fallbackLocale": "en",
 					"async": true
 				}
@@ -70,18 +70,28 @@
 				"controlAggregation": "pages"
 			},
 			"routes": [
-				{
-					"pattern": "",
-					"name": "main",
-					"target": "main"
-				}
-			],
-			"targets": {
-				"main": {
-					"id": "main",
-					"name": "Main"
-				}
+			{
+				"pattern": "",
+				"name": "main",
+				"target": "main"
+			},
+			{
+				"pattern": "application",
+				"name": "application",
+				"target": "application"
 			}
+		],
+		"targets": {
+			"main": {
+				"id": "main",
+				"name": "Main"
+			},
+			"application": {
+				"id": "application",
+				"name": "Application",
+				"type": "View"
+			}
+		}
 		}
 	}
 }
