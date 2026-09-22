@@ -2,15 +2,42 @@ sap.ui.define([
     "./BaseController",
     "sap/m/Dialog",
     "sap/m/VBox",
+    "sap/m/HBox",
     "sap/m/Label",
     "sap/m/Text",
-    "sap/m/Button"
-], function (BaseController, Dialog, VBox, Label, Text, Button) {
+    "sap/m/Button",
+    "sap/m/Title",
+    "sap/m/ObjectStatus",
+    "sap/ui/core/HTML",
+    "sap/ui/core/Icon",
+    "sap/m/Image",
+], function (
+    BaseController,
+    Dialog,
+    VBox,
+    HBox,
+    Label,
+    Text,
+    Button,
+    Title,
+    ObjectStatus,
+    HTML,
+    Icon,
+    Image
+) {
     "use strict";
 
-    return BaseController.extend(
-        "com.abics.supplierportal.controller.Application",
+    return BaseController.extend("com.abics.supplierportal.controller.Application",
         {
+            onInit: function () {
+                const sEmail = sessionStorage.getItem("supplierEmail");
+                const oEmailText = this.byId("loggedInUserEmail");
+
+                if (oEmailText) {
+                    oEmailText.setText(sEmail || "");
+                }
+            },
+
             onFileTypeMismatch: function () {
                 const oBundle = this.getView().getModel("i18n").getResourceBundle();
                 sap.m.MessageToast.show(oBundle.getText("onlyPdfAllowed"));
@@ -59,6 +86,7 @@ sap.ui.define([
                 const oApplicationData = {
                     companyName: sCompanyName,
                     contactPerson: sContactPerson,
+                    supplier_ID: sessionStorage.getItem("supplierUserId"),
                     phoneCountryCode: this.byId("phoneCodeSelect").getSelectedKey(),
                     phoneNumber: this.byId("phoneInput").getValue().trim(),
                     country: this.byId("countrySelect").getSelectedKey(),
@@ -70,73 +98,147 @@ sap.ui.define([
                     certificateName: this._oCertificateFile.name,
                     certificateType: this._oCertificateFile.type || "application/pdf"
                 };
+
+                const sPdfUrl = this._oCertificateFile
+                    ? URL.createObjectURL(this._oCertificateFile)
+                    : "";
+
                 const oDialog = new Dialog({
                     title: oBundle.getText("applicationPreview"),
 
+                    contentWidth: "52rem",
+                    contentHeight: "38rem",
+                    verticalScrolling: true,
+
                     content: new VBox({
-                        
+                        width: "100%",
                         items: [
-                            new Label({ text: oBundle.getText("companyName") }),
-                            new Text({ text: oApplicationData.companyName }),
 
-                            new Label({
-                                text: oBundle.getText("contactPerson"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.contactPerson }),
+                            new sap.m.MessageStrip({
+                                text: oBundle.getText("previewDescription"),
+                                type: "Information",
+                                showIcon: true,
+                                showCloseButton: false
+                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("phone"),
-                                
-                            }),
-                            new Text({
-                                text: oApplicationData.phoneCountryCode + " " + oApplicationData.phoneNumber
-                            }),
+                            new Title({
+                                text: oBundle.getText("companyInformation"),
+                                level: "H4"
+                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("country"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.country }),
+                            // İKİ KOLON
+                            new HBox({
+                                width: "100%",
+                                justifyContent: "SpaceBetween",
+                                alignItems: "Start",
 
-                            new Label({
-                                text: oBundle.getText("category"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.category }),
+                                items: [
 
-                            new Label({
-                                text: oBundle.getText("taxNumber"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.taxNumber }),
+                                    // SOL KOLON
+                                    new VBox({
+                                        width: "48%",
+                                        items: [
+                                            new Label({
+                                                text: oBundle.getText("companyName")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.companyName || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("website"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.website }),
+                                            new Label({
+                                                text: oBundle.getText("contactPerson")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.contactPerson || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("address"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.address }),
+                                            new Label({
+                                                text: oBundle.getText("phone")
+                                            }),
+                                            new Text({
+                                                text:
+                                                    (
+                                                        oApplicationData.phoneCountryCode +
+                                                        " " +
+                                                        oApplicationData.phoneNumber
+                                                    ).trim() || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("notes"),
-                                
-                            }),
-                            new Text({ text: oApplicationData.notes }),
+                                            new Label({
+                                                text: oBundle.getText("country")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.country || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
 
-                            new Label({
-                                text: oBundle.getText("certificate"),
-                                
-                            }),
-                            new Text({ text: sCertificate })
+                                            new Label({
+                                                text: oBundle.getText("category")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.category || "-"
+                                            })
+                                        ]
+                                    }),
+
+                                    // SAĞ KOLON
+                                    new VBox({
+                                        width: "48%",
+                                        items: [
+                                            new Label({
+                                                text: oBundle.getText("taxNumber")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.taxNumber || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                                            new Label({
+                                                text: oBundle.getText("website")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.website || "-"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                                            new Label({
+                                                text: oBundle.getText("address")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.address || "-",
+                                                wrapping: true
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                                            new Label({
+                                                text: oBundle.getText("notes")
+                                            }),
+                                            new Text({
+                                                text: oApplicationData.notes || "-",
+                                                wrapping: true
+                                            })
+                                        ]
+                                    })
+                                ]
+                            }).addStyleClass("sapUiResponsiveContentPadding"),
+
+                            // SERTİFİKA BÖLÜMÜ
+                            new Title({
+                                text: oBundle.getText("certificateInformation"),
+                                level: "H4"
+                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                            new ObjectStatus({
+                                text: sCertificate,
+                                icon: "sap-icon://pdf-attachment",
+                                state: "Information"
+                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                            new HTML({
+                                content:
+                                    '<div style="width:100%; text-align:center;">' +
+                                        '<canvas id="certificatePdfCanvas" ' +
+                                        'style="max-width:100%; height:auto;"></canvas>' +
+                                    '</div>'
+                            })
                         ]
                     }),
-
                     beginButton: new Button({
                         text: oBundle.getText("confirmSubmit"),
                         type: "Emphasized",
@@ -180,7 +282,51 @@ sap.ui.define([
                                 }
                                 console.log("Created application:", oCreatedApplication);
 
-                                oDialog.close();
+                                oDialog.removeAllContent();
+                                oDialog.setTitle(oBundle.getText("applicationSuccessTitle"));
+
+                                oDialog.addContent(
+                                    new VBox({
+                                        width: "100%",
+                                        height: "30rem",
+                                        alignItems: "Center",
+                                        justifyContent: "Center",
+                                        items: [
+                                            new Image({
+                                                src: "images/tik.png",
+                                                width: "5rem",
+                                                decorative: false,
+                                                alt: "Success"
+                                            }).addStyleClass("sapUiMediumMarginBottom"),
+
+                                            new Title({
+                                                text: oBundle.getText("applicationSuccessMessage"),
+                                                level: "H3"
+                                            }).addStyleClass("sapUiSmallMarginBottom"),
+
+                                            new Text({
+                                                text: oBundle.getText("applicationStatusInfo"),
+                                                textAlign: "Center",
+                                                width: "100%"
+                                            })
+                                        ]
+                                    })
+                                );
+
+                                oDialog.setBeginButton(
+                                    new Button({
+                                        text: oBundle.getText("continue"),
+                                        type: "Emphasized",
+                                        icon: "sap-icon://navigation-right-arrow",
+                                        iconFirst: false,
+
+                                        press: function () {
+                                            // Bir sonraki adımda Başvuru Durumu sayfasına yönlendireceğiz.
+                                        }
+                                    })
+                                );
+
+                                oDialog.setEndButton(null);
                             } catch (oError) {
                                 console.error("Application save error:", oError);
                             }
@@ -200,6 +346,41 @@ sap.ui.define([
                 });
 
                 oDialog.open();
+
+                setTimeout(async () => {
+                    const oFile = this._oCertificateFile;
+                    const oCanvas = document.getElementById("certificatePdfCanvas");
+
+                    if (!oFile || !oCanvas) {
+                        return;
+                    }
+
+                    const pdfjsLib = await import("../lib/pdfjs/pdf.mjs");
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = "../lib/pdfjs/pdf.worker.mjs";
+
+                    const oArrayBuffer = await oFile.arrayBuffer();
+
+                    const oPdf = await pdfjsLib.getDocument({
+                        data: oArrayBuffer
+                    }).promise;
+
+                    const oPage = await oPdf.getPage(1);
+
+                    const oViewport = oPage.getViewport({
+                        scale: 1.2
+                    });
+
+                    const oContext = oCanvas.getContext("2d");
+
+                    oCanvas.width = oViewport.width;
+                    oCanvas.height = oViewport.height;
+
+                    await oPage.render({
+                        canvasContext: oContext,
+                        viewport: oViewport
+                    }).promise;
+
+                }, 300);
 
                 console.log("Application data:", oApplicationData);
             }

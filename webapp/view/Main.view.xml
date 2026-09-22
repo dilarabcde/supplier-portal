@@ -301,10 +301,10 @@
                             alignItems="Center"
                             justifyContent="Center">
 
-                            <core:Icon
-                                src="sap-icon://accept"
-                                size="4rem"
-                                color="#107E3E"
+                            <Image
+                                src="images/tik.png"
+                                width="6rem"
+                                densityAware="false"
                                 class="sapUiMediumMarginBottom" />
 
                             <Title

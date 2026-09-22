@@ -1,6 +1,10 @@
 using { supplierportal as db } from '../db/schema';
 // Veritabanındaki entity'leri servis katmanında kullanabilmek için içe aktarır.
 
+ type LoginResult {
+    userId : UUID;
+    email  : String;
+}
 
 service SupplierManagementService {
     entity Applications as projection on db.SupplierApplications;
@@ -31,7 +35,7 @@ service SupplierManagementService {
     action login(
         email    : String,
         password : String
-    ) returns String;
+    ) returns LoginResult;
     
     action verifyEmail(
         token : String

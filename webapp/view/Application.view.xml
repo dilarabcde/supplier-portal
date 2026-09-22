@@ -7,18 +7,62 @@
 
     <Page
         id="applicationPage"
-        title="{i18n>applicationTitle}">
+        showHeader="false">
 
         <content>
-            <VBox
-                width="100%"
-                class="sapUiMediumMargin">
 
-                <Title
-                    text="{i18n>applicationFormTitle}"
-                    level="H2"
-                    class="sapUiSmallMarginBottom" />
+            <VBox width="100%">
 
+                <!-- Üst bar -->
+                <Toolbar>
+                    <Image
+                        src="images/logo.png"
+                        width="6rem"
+                        densityAware="false" />
+
+                    <ToolbarSpacer />
+
+                    <Text
+                        id="loggedInUserEmail"
+                        class="sapUiTinyMarginEnd" />
+
+                    <Button
+                        text="Çıkış"
+                        icon="sap-icon://log"
+                        type="Transparent" />
+                </Toolbar>
+
+                <!-- Üst görsel -->
+                <Image
+                    src="images/bremen-main.jpeg"
+                    width="100%"
+                    height="22rem"
+                    densityAware="false" />
+
+                <!-- Bilgilendirme -->
+                <MessageStrip
+                    text="Tedarikçi olarak kaydolmak için aşağıdaki formu doldurun. Gönderdikten sonra onay durumunu buradan takip edebilirsiniz."
+                    type="Information"
+                    showIcon="true"
+                    showCloseButton="false"
+                    class="sapUiSmallMargin" />
+
+                <!-- Form alanı -->
+                <VBox
+                    width="100%"
+                    class="sapUiMediumMargin">
+
+                    <Title
+                        text="{i18n>applicationFormTitle}"
+                        level="H2"
+                        class="sapUiSmallMarginBottom" />
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween"
+                        alignItems="Start">
+
+                        <VBox
+                            width="49%">
                 <Label
                     text="{i18n>companyName}"
                     required="true" />
@@ -43,7 +87,7 @@
                     <HBox width="100%" alignItems="Center">
                         <Select
                             id="phoneCodeSelect"
-                            width="9rem"
+                            width="6rem"
                             selectedKey="TR">
                             <items>
                                 <core:Item key="TR" text="🇹🇷 +90" />
@@ -56,7 +100,7 @@
                         <Input
                             id="phoneInput"
                             type="Tel"
-                            width="100%"
+                            width="14rem"
                             placeholder="{i18n>phonePlaceholder}"
                             class="sapUiTinyMarginBegin" />
                     </HBox>
@@ -89,6 +133,9 @@
                             <core:Item key="Consulting" text="Consulting" />
                         </items>
                     </Select>
+                        </VBox>
+
+                        <VBox width="49%">
                     <Label
                         text="{i18n>taxNumber}" />
 
@@ -123,7 +170,21 @@
                         width="100%"
                         rows="4"
                         placeholder="{i18n>notesPlaceholder}" />
+                    </VBox>
+                    </HBox>
 
+                    <Title
+                        text="{i18n>certificateSectionTitle}"
+                        level="H3"
+                        class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+
+                    <MessageStrip
+                        text="{i18n>certificateInfo}"
+                        type="Information"
+                        showIcon="true"
+                        showCloseButton="false"
+                        class="sapUiSmallMarginBottom" />
+                        
                     <Label
                         text="{i18n>certificate}"
                         required="true" />
@@ -146,9 +207,12 @@
                         class="sapUiMediumMarginTop" />
                                 
 
+                </VBox>
+
             </VBox>
-                    </content>
+
+        </content>
 
     </Page>
 
-</mvc:View>
+    </mvc:View>

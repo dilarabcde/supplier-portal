@@ -18,6 +18,12 @@ cds.on("bootstrap", (app) => {
 
     next();
 });
+
+app.get("/images/tik.png", (request, response) => {
+    response.sendFile(
+        require("path").join(__dirname, "../webapp/images/tik.png")
+    );
+});
     app.get("/verify-email", async (request, response) => {
         const token = request.query.token;
 
@@ -45,39 +51,25 @@ cds.on("bootstrap", (app) => {
                 })
                 .where({ ID: user.ID });
 
-            return response.send(`
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>E-mail Verified</title>
-                </head>
-                <body style="
-                    margin: 0;
-                    height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    font-family: Arial, sans-serif;
-                    background-color: white;
-                ">
-                    <div style="text-align: center;">
-                        <div style="
-                            font-size: 120px;
-                            color: #107e3e;
-                            line-height: 1;
-                        ">✓</div>
+        return response.send(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>E-mail Verified</title>
+            </head>
+            <body>
+                <main align="center">
+                    <img src="/images/tik.png" alt="Success" width="120">
 
-                        <h1>E-mail verified successfully.</h1>
+                    <h1>E-mail verified successfully.</h1>
 
-                        <p style="font-size: 20px; color: #555;">
-                            You can now sign in.
-                        </p>
-                    </div>
-                </body>
-                </html>
-            `);
+                    <p>You can now sign in.</p>
+                </main>
+            </body>
+            </html>
+        `);
         } catch (error) {
             console.error("E-mail verification error:", error);
             return response.status(500).send("E-mail verification failed");

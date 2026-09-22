@@ -262,6 +262,9 @@ this.on("login", async (request) => {
         return request.reject(401, "Invalid e-mail or password");
     }
 
-    return "Login successful";
+    return {
+        userId: user.ID,
+        email: user.email
+    };
 });
 });

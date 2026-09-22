@@ -222,6 +222,9 @@ sap.ui.define([
 
         console.log("Login successful:", result);
 
+		sessionStorage.setItem("supplierUserId", result.userId);
+		sessionStorage.setItem("supplierEmail", result.email);
+
 		this.getOwnerComponent().getRouter().navTo("application");
 		const rememberMe = this.byId("rememberMe").getSelected();
 

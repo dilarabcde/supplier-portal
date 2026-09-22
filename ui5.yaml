@@ -21,5 +21,6 @@ server:
         excludePatterns:
           - "resources/"
           - "test/"
+
     - name: ui5-middleware-livereload
       afterMiddleware: compression
