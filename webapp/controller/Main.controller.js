@@ -96,8 +96,7 @@ sap.ui.define([
 			const password = passwordInput.getValue();
 			const confirmPassword = confirmPasswordInput.getValue();
 
-			const emailValid =
-				/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+			const emailValid =/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 			const passwordValid =
 				password.length >= 8 &&
@@ -193,13 +192,23 @@ sap.ui.define([
 				passwordInput.setValueHelpIconSrc("sap-icon://show");
 			}
 		},
-		onLoginSubmit: async function () {
-			const email = this.byId("loginEmail").getValue().trim();
-			const password = this.byId("loginPassword").getValue();
+onLoginSubmit: async function () {
+
+    const emailInput = this.byId("loginEmail");
+    const passwordInput = this.byId("loginPassword");
+    const loginError = this.byId("loginError");
+
+    const email = emailInput.getValue().trim();
+    const password = passwordInput.getValue();
+
+    emailInput.setValueState("None");
+    passwordInput.setValueState("None");
+    loginError.setVisible(false);
 
     try {
-        const response = await fetch(
-            "http://localhost:4004/odata/v4/supplier-management/login",
+
+const response = await fetch(
+    "http://localhost:4004/odata/v4/supplier-management/login",
             {
                 method: "POST",
                 headers: {
@@ -212,31 +221,37 @@ sap.ui.define([
             }
         );
 
-        const result = await response.json();
+if (!response.ok) {
+    emailInput.setValueState("Error");
+    passwordInput.setValueState("Error");
+    loginError.setVisible(true);
+    return;
+}
 
-        if (!response.ok) {
-            throw new Error(
-                result.error?.message || "Login failed."
-            );
+const result = await response.json();
+
+        sessionStorage.setItem("supplierUserId", result.userId);
+        sessionStorage.setItem("supplierEmail", result.email);
+
+        const rememberMe = this.byId("rememberMe").getSelected();
+
+        if (rememberMe) {
+            localStorage.setItem("rememberedEmail", email);
+        } else {
+            localStorage.removeItem("rememberedEmail");
         }
 
-        console.log("Login successful:", result);
-
-		sessionStorage.setItem("supplierUserId", result.userId);
-		sessionStorage.setItem("supplierEmail", result.email);
-
-		this.getOwnerComponent().getRouter().navTo("application");
-		const rememberMe = this.byId("rememberMe").getSelected();
-
-		if (rememberMe) {
-			localStorage.setItem("rememberedEmail", email);
-		} else {
-			localStorage.removeItem("rememberedEmail");
-		}
-	
+        this.getOwnerComponent()
+            .getRouter()
+            .navTo("application");
 
     } catch (error) {
-        console.error("Login error:", error);
+
+        console.error("Login request error:", error);
+
+        emailInput.setValueState("Error");
+        passwordInput.setValueState("Error");
+        loginError.setVisible(true);
     }
 },
 

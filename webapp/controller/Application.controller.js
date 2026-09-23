@@ -37,6 +37,7 @@ sap.ui.define([
                     oEmailText.setText(sEmail || "");
                 }
             },
+        
 
             onFileTypeMismatch: function () {
                 const oBundle = this.getView().getModel("i18n").getResourceBundle();
@@ -261,7 +262,10 @@ sap.ui.define([
                                 }
 
                                 const oCreatedApplication = await oResponse.json();
-
+                                    sessionStorage.setItem(
+                                        "supplierApplicationId",
+                                        oCreatedApplication.ID
+                                    );
                                 const oFile = this._oCertificateFile;
 
                                 if (oFile) {
@@ -320,8 +324,9 @@ sap.ui.define([
                                         icon: "sap-icon://navigation-right-arrow",
                                         iconFirst: false,
 
-                                        press: function () {
-                                            // Bir sonraki adımda Başvuru Durumu sayfasına yönlendireceğiz.
+                                        press: () => {
+                                            oDialog.close();
+                                            this.getOwnerComponent().getRouter().navTo("applicationStatus");
                                         }
                                     })
                                 );

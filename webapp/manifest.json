@@ -79,6 +79,11 @@
 				"pattern": "application",
 				"name": "application",
 				"target": "application"
+			},
+			{
+				"pattern": "application-status",
+				"name": "applicationStatus",
+				"target": "applicationStatus"
 			}
 		],
 		"targets": {
@@ -89,6 +94,11 @@
 			"application": {
 				"id": "application",
 				"name": "Application",
+				"type": "View"
+			},
+			"applicationStatus": {
+				"id": "applicationStatus",
+				"name": "ApplicationStatus",
 				"type": "View"
 			}
 		}
