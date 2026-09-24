@@ -200,6 +200,10 @@
                         fileSizeExceed=".onFileSizeExceed"
                         change=".onCertificateChange" />
 
+                    <Text
+                        text="{i18n>certificateUploadHint}"
+                        class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
+
                     <Button
                         text="{i18n>submitApplication}"
                         type="Emphasized"

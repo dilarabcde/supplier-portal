@@ -214,17 +214,17 @@
                                 text="{i18n>passwordLabel}"
                                 class="sapUiTinyMarginBottom" />
 
-                            <Input
-                                id="registerPassword"
-                                type="Password"
-                                placeholder="{i18n>passwordPlaceholder}"
-                                width="100%"
-                                liveChange=".onPasswordLiveChange"
-                                showValueHelp="true"
-                                valueHelpIconSrc="sap-icon://show"
-                                valueHelpRequest=".onToggleRegisterPassword"
-                                class="sapUiSmallMarginBottom" />
-
+                        <Input
+                            id="registerPassword"
+                            type="Password"
+                            placeholder="{i18n>passwordPlaceholder}"
+                            width="100%"
+                            liveChange=".onPasswordLiveChange"
+                            showValueHelp="true"
+                            valueHelpIconSrc="sap-icon://show"
+                            valueHelpRequest=".onToggleRegisterPassword"
+                            class="sapUiSmallMarginBottom" />
+                            
                             <!-- Confirm Password -->
                             <Label
                                 text="{i18n>confirmPasswordLabel}"

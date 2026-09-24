@@ -87,6 +87,7 @@ sap.ui.define([
 				status.setIcon("sap-icon://decline");
 			}
 		},
+
 		onRegisterSubmit: async function () {
 			const emailInput = this.byId("registerEmail");
 			const passwordInput = this.byId("registerPassword");
@@ -168,9 +169,17 @@ sap.ui.define([
 				this.byId("registerForm").setVisible(false);
 				this.byId("registerSuccessArea").setVisible(true);
 
-			} catch (error) {
-				console.error("Registration error:", error);
-			}
+				} catch (error) {
+					console.error("Registration error:", error);
+
+					if (error.message === "E-mail is already registered") {
+						emailInput.setValueState("Error");
+						emailInput.setValueStateText(
+							"Bu e-posta adresiyle daha önce kayıt oluşturulmuş."
+						);
+						emailInput.focus();
+					}
+				}
 		},
 		onGoToLogin: function () {
 			this.byId("registerArea").setVisible(false);
@@ -233,6 +242,17 @@ const result = await response.json();
         sessionStorage.setItem("supplierUserId", result.userId);
         sessionStorage.setItem("supplierEmail", result.email);
 
+		const applicationResponse = await fetch(
+    `http://localhost:4004/odata/v4/supplier-management/Applications?$filter=supplier_ID eq ${result.userId}`
+);
+
+const applicationData = await applicationResponse.json();
+
+const hasApplication =
+    applicationResponse.ok &&
+    applicationData.value &&
+    applicationData.value.length > 0;
+
         const rememberMe = this.byId("rememberMe").getSelected();
 
         if (rememberMe) {
@@ -241,9 +261,15 @@ const result = await response.json();
             localStorage.removeItem("rememberedEmail");
         }
 
-        this.getOwnerComponent()
-            .getRouter()
-            .navTo("application");
+		if (hasApplication) {
+			this.getOwnerComponent()
+				.getRouter()
+				.navTo("applicationStatus");
+		} else {
+			this.getOwnerComponent()
+				.getRouter()
+				.navTo("application");
+		}
 
     } catch (error) {
 
