@@ -84,6 +84,11 @@
 				"pattern": "application-status",
 				"name": "applicationStatus",
 				"target": "applicationStatus"
+			},
+			{
+				"pattern": "approver",
+				"name": "approver",
+				"target": "approver"
 			}
 		],
 		"targets": {
@@ -100,7 +105,13 @@
 				"id": "applicationStatus",
 				"name": "ApplicationStatus",
 				"type": "View"
+			},
+			"approver": {
+				"id": "approver",
+				"name": "Approver",
+				"type": "View"
 			}
+
 		}
 		}
 	}

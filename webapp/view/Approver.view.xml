@@ -1,0 +1,233 @@
+<mvc:View
+    controllerName="com.abics.supplierportal.controller.Approver"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+
+    <Page
+        id="approverPage"
+        title="{i18n>approverPageTitle}">
+
+        <content>
+
+            <!-- Banner -->
+            <Image
+                src="images/bremen-main.jpeg"
+                 height="23rem"
+                width="100%"
+                densityAware="false"
+                decorative="false"
+                alt="{i18n>approverBannerAlt}" />
+
+<VBox class="sapUiMediumMarginBeginEnd">
+
+<HBox
+    width="100%"
+    justifyContent="Center"
+    alignItems="Center"
+    class="sapUiSmallMarginTop sapUiSmallMarginBottom">
+
+    <!-- TÜM BAŞVURULAR -->
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>allApplications}"
+        press=".onFilterApplications"
+        class="sapUiTinyMarginBeginEnd">
+        <customData>
+            <core:CustomData key="status" value="" />
+        </customData>
+
+        <TileContent>
+            <NumericContent
+                value="{approver>/counts/all}"
+                icon="sap-icon://list"
+                valueColor="Neutral" />
+        </TileContent>
+    </GenericTile>
+
+    <!-- BEKLEYEN -->
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>pendingApplications}"
+        press=".onFilterApplications"
+        class="sapUiTinyMarginBeginEnd">
+        <customData>
+            <core:CustomData key="status" value="Pending" />
+        </customData>
+
+        <TileContent>
+            <NumericContent
+                value="{approver>/counts/pending}"
+                icon="sap-icon://pending"
+                valueColor="Critical" />
+        </TileContent>
+    </GenericTile>
+
+    <!-- ONAYLANAN -->
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>approvedApplications}"
+        press=".onFilterApplications"
+        class="sapUiTinyMarginBeginEnd">
+        <customData>
+            <core:CustomData key="status" value="Approved" />
+        </customData>
+
+        <TileContent>
+            <NumericContent
+                value="{approver>/counts/approved}"
+                icon="sap-icon://accept"
+                valueColor="Good" />
+        </TileContent>
+    </GenericTile>
+
+    <!-- REDDEDİLEN -->
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>rejectedApplications}"
+        press=".onFilterApplications"
+        class="sapUiTinyMarginBeginEnd">
+        <customData>
+            <core:CustomData key="status" value="Rejected" />
+        </customData>
+
+        <TileContent>
+            <NumericContent
+                value="{approver>/counts/rejected}"
+                icon="sap-icon://decline"
+                valueColor="Error" />
+        </TileContent>
+    </GenericTile>
+
+    <!-- TÜM TEDARİKÇİLER -->
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>allSuppliers}"
+        class="sapUiTinyMarginBeginEnd">
+
+        <TileContent>
+            <NumericContent
+                value="0"
+                icon="sap-icon://group"
+                valueColor="Neutral" />
+        </TileContent>
+    </GenericTile>
+
+        </HBox>
+        </VBox>
+        <HBox
+            width="100%"
+            justifyContent="Center">
+
+            <VBox
+                width="95%"
+                class="sapUiMediumTinyTop">
+
+        <Panel
+            width="100%"
+            class="sapUiSmallMarginTop">
+
+        <content>
+                <!-- Başvurular -->
+                <Table
+                    id="applicationsTable"
+                    width="100%"
+                    items="{approver>/applications}"
+                    noDataText="{i18n>noApplicationsFound}">
+
+                <headerToolbar>
+                    <Toolbar>
+
+                        <Title
+                            text="{i18n>applicationsTitle}"
+                            level="H3" />
+
+                        <ToolbarSpacer />
+
+                            <Select
+                                width="9rem"
+                                selectedKey=""
+                                change=".onCategoryFilter">
+                                <core:Item key="" text="{i18n>allCategories}" />
+                                <core:Item key="Hardware" text="Hardware" />
+                                <core:Item key="Software" text="Software" />
+                                <core:Item key="Services" text="Services" />
+                                <core:Item key="Consulting" text="Consulting" />
+                            </Select>
+
+                        <SearchField
+                            width="18rem"
+                            placeholder="{i18n>searchApplications}"
+                            liveChange=".onSearchApplications" />
+
+                        <Button
+                            icon="sap-icon://refresh"
+                            type="Transparent"
+                            press=".onRefresh" />
+
+                    </Toolbar>
+                </headerToolbar>
+
+                    <columns>
+
+                        <Column>
+                            <Text text="{i18n>company}" />
+                        </Column>
+
+                        <Column>
+                            <Text text="{i18n>contactPerson}" />
+                        </Column>
+
+                        <Column>
+                            <Text text="{i18n>email}" />
+                        </Column>
+
+                        <Column>
+                            <Text text="{i18n>category}" />
+                        </Column>
+
+                        <Column>
+                            <Text text="{i18n>status}" />
+                        </Column>
+
+                    </columns>
+
+                    <items>
+
+                        <ColumnListItem>
+
+                            <cells>
+
+                                <Text text="{approver>companyName}" />
+
+                                <Text text="{approver>contactPerson}" />
+
+                                <Text text="{approver>supplier/email}" />
+
+                                <Text text="{approver>category}" />
+
+                                <ObjectStatus
+                                    text="{approver>status}" />
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+</Table>
+    </content>
+</Panel>
+    </VBox>
+
+</HBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>
