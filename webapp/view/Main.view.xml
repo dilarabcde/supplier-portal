@@ -126,29 +126,30 @@
                                 text="{i18n>passwordLabel}"
                                 class="sapUiTinyMarginBottom" />
 
-<Input
-    id="loginPassword"
-    type="Password"
-    placeholder="{i18n>passwordPlaceholder}"
-    width="100%"
-    showValueHelp="true"
-    valueHelpIconSrc="sap-icon://show"
-    valueHelpRequest=".onToggleLoginPassword" />
+                            <Input
+                                id="loginPassword"
+                                type="Password"
+                                placeholder="{i18n>passwordPlaceholder}"
+                                width="100%"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleLoginPassword"
+                                submit=".onLoginSubmit" />
 
-<!-- Login Hatası -->
-<ObjectStatus
-    id="loginError"
-    text="{i18n>loginInvalidCredentials}"
-    state="Error"
-    visible="false"
-    class="sapUiTinyMarginTop sapUiMediumMarginBottom" />
+                            <!-- Login Hatası -->
+                            <ObjectStatus
+                                id="loginError"
+                                text="{i18n>loginInvalidCredentials}"
+                                state="Error"
+                                visible="false"
+                                class="sapUiTinyMarginTop sapUiMediumMarginBottom" />
 
-<!-- Login -->
-<CheckBox
-    id="rememberMe"
-    text="{i18n>rememberMe}"
-    selected="false"
-    class="sapUiSmallMarginBottom" />
+                            <!-- Login -->
+                            <CheckBox
+                                id="rememberMe"
+                                text="{i18n>rememberMe}"
+                                selected="false"
+                                class="sapUiSmallMarginBottom" />
 
                             <Button
                                 text="{i18n>loginButton}"

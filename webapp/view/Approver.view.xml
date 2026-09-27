@@ -104,19 +104,26 @@
     </GenericTile>
 
     <!-- TÜM TEDARİKÇİLER -->
-    <GenericTile
-        frameType="TwoByHalf"
-        width="19rem"
-        header="{i18n>allSuppliers}"
-        class="sapUiTinyMarginBeginEnd">
+        <GenericTile
+            frameType="TwoByHalf"
+            width="19rem"
+            header="{i18n>allSuppliers}"
+            press=".onFilterApplications">
 
-        <TileContent>
-            <NumericContent
-                value="0"
-                icon="sap-icon://group"
-                valueColor="Neutral" />
-        </TileContent>
-    </GenericTile>
+            <customData>
+                <core:CustomData
+                    key="status"
+                    value="Approved" />
+            </customData>
+
+            <TileContent>
+                <NumericContent
+                    value="{approver>/counts/suppliers}"
+                    icon="sap-icon://group"
+                    valueColor="Neutral" />
+            </TileContent>
+
+        </GenericTile>
 
         </HBox>
         </VBox>
@@ -174,6 +181,9 @@
                 </headerToolbar>
 
                     <columns>
+                        <Column width="4rem">
+                            <Text text="{i18n>number}" />
+                        </Column>
 
                         <Column>
                             <Text text="{i18n>company}" />
@@ -194,15 +204,16 @@
                         <Column>
                             <Text text="{i18n>status}" />
                         </Column>
-
-                    </columns>
+                        <Column
+                            width="3rem"
+                            hAlign="Center"/>
+                 </columns>
 
                     <items>
-
                         <ColumnListItem>
 
                             <cells>
-
+                                <ObjectNumber number="{approver>rowNumber}" />
                                 <Text text="{approver>companyName}" />
 
                                 <Text text="{approver>contactPerson}" />
@@ -213,6 +224,11 @@
 
                                 <ObjectStatus
                                     text="{approver>status}" />
+                                <Button
+                                    icon="sap-icon://navigation-right-arrow"
+                                    type="Transparent"
+                                    tooltip="{i18n>viewApplicationDetails}"
+                                    press=".onApplicationPress" />
 
                             </cells>
 

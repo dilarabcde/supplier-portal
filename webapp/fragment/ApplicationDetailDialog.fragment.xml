@@ -1,0 +1,31 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="applicationDetailDialog"
+        title="{i18n>applicationDetailTitle}"
+        contentWidth="50rem"
+        contentHeight="35rem"
+        draggable="true"
+        resizable="true">
+
+        <content>
+            <VBox class="sapUiMediumMargin">
+
+                <Title
+                    text="{i18n>applicationDetailTitle}"
+                    level="H2" />
+
+            </VBox>
+        </content>
+
+        <endButton>
+            <Button
+                text="{i18n>close}"
+                press=".onCloseApplicationDialog" />
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

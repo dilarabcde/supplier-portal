@@ -2,8 +2,9 @@ sap.ui.define([
     "./BaseController",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], function (BaseController, JSONModel, Filter, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/ui/core/Fragment"
+], function (BaseController, JSONModel, Filter, FilterOperator, Fragment) {
     "use strict";
 
     return BaseController.extend("com.abics.supplierportal.controller.Approver", {
@@ -29,6 +30,9 @@ sap.ui.define([
                 const data = await response.json();
 
                 const applications = data.value || [];
+                applications.forEach((app, index) => {
+                    app.rowNumber = index + 1;
+                });
 
                 const oModel = new JSONModel({
                     applications: applications,
@@ -47,6 +51,10 @@ sap.ui.define([
 
                         rejected: applications.filter(
                             app => app.status === "Rejected"
+                        ).length,
+
+                        suppliers: applications.filter(
+                            app => app.status === "Approved"
                         ).length
                     }
                 });
@@ -114,6 +122,33 @@ sap.ui.define([
         onCategoryFilter: function (oEvent) {
             this._selectedCategory = oEvent.getSource().getSelectedKey() || "";
             this._applyFilters();
+        },
+        onApplicationPress: async function (oEvent) {
+            const oApplication = oEvent
+                .getSource()
+                .getBindingContext("approver")
+                .getObject();
+
+            const oDetailModel = new JSONModel(oApplication);
+            this.getView().setModel(oDetailModel, "selectedApplication");
+
+            if (!this._oApplicationDetailDialog) {
+                this._oApplicationDetailDialog = await Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.abics.supplierportal.fragment.ApplicationDetailDialog",
+                    controller: this
+                });
+
+                this.getView().addDependent(this._oApplicationDetailDialog);
+            }
+
+            this._oApplicationDetailDialog.open();
+        },
+        onRefresh: function () {
+            this._loadApplications();
+        },
+        onCloseApplicationDialog: function () {
+            this._oApplicationDetailDialog.close();
         }
 
     });
