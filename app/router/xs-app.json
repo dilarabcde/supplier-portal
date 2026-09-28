@@ -1,0 +1,18 @@
+{
+  "welcomeFile": "/fiori-apps.html",
+  "authenticationMethod": "none",
+  "routes": [
+    {
+      "source": "^/odata/(.*)$",
+      "target": "/odata/$1",
+      "destination": "cap-backend",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "destination": "cap-backend",
+      "authenticationType": "none"
+    }
+  ]
+}

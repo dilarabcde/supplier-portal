@@ -269,4 +269,24 @@ this.on("login", async (request) => {
         email: user.email
     };
 });
+    this.on("getSupplierEmail", async (request) => {
+        const supplierId = request.data.supplierId;
+
+        if (!supplierId) {
+            return request.reject(400, "Supplier ID is required");
+        }
+
+        const { SupplierUsers } = cds.entities("supplierportal");
+
+        const user = await SELECT.one
+            .from(SupplierUsers)
+            .columns("email")
+            .where({ ID: supplierId });
+
+        if (!user) {
+            return request.reject(404, "Supplier not found");
+        }
+
+        return user.email;
+    });
 });

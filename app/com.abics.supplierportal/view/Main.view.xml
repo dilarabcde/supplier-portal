@@ -1,0 +1,350 @@
+<mvc:View
+    controllerName="com.abics.supplierportal.controller.Main"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc">
+
+    <Page
+        id="page"
+        showHeader="false"
+        enableScrolling="false"
+        backgroundDesign="Solid">
+
+        <content>
+
+            <!-- Ana ekran düzeni -->
+ 
+ <HBox
+    id="mainLayout"
+    fitContainer="true"
+    width="100%"
+    height="100vh"
+    alignItems="Stretch">
+
+    <!-- SOL / FOTOĞRAF -->
+    <VBox
+        width="50%"
+        height="100%"
+        fitContainer="true">
+
+        <Image
+            src="{images>/bremen}"
+            width="100%"
+            height="100vh"
+            densityAware="false"
+            decorative="true" />
+    </VBox>
+
+    <!-- SAĞ / ANA ALAN -->
+    <VBox
+        width="50%"
+        height="100%"
+        fitContainer="true"
+        justifyContent="Center"
+        alignItems="Center">
+
+        <!-- LOGO -->
+        <Image
+            id="mainLogo"
+            src="{images>/logo}"
+            width="420px"
+            densityAware="false"
+            class="sapUiMediumMarginBottom" />
+
+        <!-- ANA BUTONLAR -->
+        <HBox
+            id="homeButtons"
+            justifyContent="Center">
+
+            <Button
+                id="loginButton"
+                text="{i18n>loginButton}"
+                type="Emphasized"
+                width="10rem"
+                press=".onLoginPress"
+                class="sapUiTinyMarginEnd" />
+
+            <Button
+                id="registerButton"
+                text="{i18n>registerButton}"
+                type="Emphasized"
+                width="10rem"
+                press=".onRegisterPress"
+                class="sapUiTinyMarginBegin" />
+        </HBox>
+
+
+                <!-- SAĞ / LOGIN ALANI -->
+                <VBox
+                    id="loginArea"
+                    visible="false"
+                    width="32rem"
+                    justifyContent="Center"
+                    class="sapUiLargeMarginEnd">
+
+                    <Panel
+                        width="100%"
+                        height="32rem"
+                        backgroundDesign="Solid">
+
+                        <VBox
+                            width="100%"
+                            class="sapUiContentPadding">
+
+                            <!-- Başlık -->
+                            <HBox
+                                width="100%"
+                                justifyContent="SpaceBetween"
+                                alignItems="Center"
+                                class="sapUiMediumMarginBottom">
+
+                                <Title
+                                    text="{i18n>loginButton}"
+                                    level="H2" />
+
+                                <Button
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseLoginPress" />
+
+                            </HBox>
+
+                            <!-- E-Mail -->
+                            <Label
+                                text="{i18n>emailLabel}"
+                                class="sapUiTinyMarginBottom" />
+
+                            <Input
+                                id="loginEmail"
+                                type="Email"
+                                placeholder="{i18n>emailPlaceholder}"
+                                width="100%" />
+
+                            <!-- Password -->
+                            <Label
+                                text="{i18n>passwordLabel}"
+                                class="sapUiTinyMarginBottom" />
+
+                            <Input
+                                id="loginPassword"
+                                type="Password"
+                                placeholder="{i18n>passwordPlaceholder}"
+                                width="100%"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleLoginPassword"
+                                submit=".onLoginSubmit" />
+
+                            <!-- Login Hatası -->
+                            <ObjectStatus
+                                id="loginError"
+                                text="{i18n>loginInvalidCredentials}"
+                                state="Error"
+                                visible="false"
+                                class="sapUiTinyMarginTop sapUiMediumMarginBottom" />
+
+                            <!-- Login -->
+                            <CheckBox
+                                id="rememberMe"
+                                text="{i18n>rememberMe}"
+                                selected="false"
+                                class="sapUiSmallMarginBottom" />
+
+                            <Button
+                                text="{i18n>loginButton}"
+                                type="Emphasized"
+                                width="100%"
+                                press=".onLoginSubmit" />
+
+                        </VBox>
+
+                    </Panel>
+
+                </VBox>
+                <!-- SAĞ / REGISTER ALANI -->
+                <VBox
+                    id="registerArea"
+                    visible="false"
+                    width="32rem"
+                    justifyContent="Center"
+                    class="sapUiLargeMarginEnd">
+
+                    <Panel
+                        width="100%"
+                        height="32rem"
+                        backgroundDesign="Solid">
+
+                        <VBox
+                            id="registerForm"
+                            width="100%"
+                            class="sapUiContentPadding">
+
+                            <!-- Başlık -->
+                            <HBox
+                                width="100%"
+                                justifyContent="SpaceBetween"
+                                alignItems="Center"
+                                class="sapUiMediumMarginBottom">
+
+                                <Title
+                                    text="{i18n>registerButton}"
+                                    level="H2" />
+
+                                <Button
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseRegisterPress" />
+
+                            </HBox>
+
+                            <!-- E-Mail -->
+                            <Label
+                                text="{i18n>emailLabel}"
+                                class="sapUiTinyMarginBottom" />
+
+                            <Input
+                                id="registerEmail"
+                                type="Email"
+                                placeholder="{i18n>emailPlaceholder}"
+                                width="100%"
+                                class="sapUiSmallMarginBottom" />
+
+                            <!-- Password -->
+                            <Label
+                                text="{i18n>passwordLabel}"
+                                class="sapUiTinyMarginBottom" />
+
+                        <Input
+                            id="registerPassword"
+                            type="Password"
+                            placeholder="{i18n>passwordPlaceholder}"
+                            width="100%"
+                            liveChange=".onPasswordLiveChange"
+                            showValueHelp="true"
+                            valueHelpIconSrc="sap-icon://show"
+                            valueHelpRequest=".onToggleRegisterPassword"
+                            class="sapUiSmallMarginBottom" />
+                            
+                            <!-- Confirm Password -->
+                            <Label
+                                text="{i18n>confirmPasswordLabel}"
+                                class="sapUiTinyMarginBottom"
+                                />
+
+                            <Input
+                                id="registerPasswordConfirm"
+                                type="Password"
+                                placeholder="{i18n>confirmPasswordPlaceholder}"
+                                width="100%"
+                                liveChange=".onConfirmPasswordLiveChange"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://show"
+                                valueHelpRequest=".onToggleRegisterPasswordConfirm"
+                                class="sapUiSmallMarginBottom" />
+
+                            <ObjectStatus
+                                id="passwordMatchStatus"
+                                text="{i18n>passwordsDoNotMatch}"
+                                state="Error"
+                                icon="sap-icon://decline"
+                                visible="false"
+                                class="sapUiSmallMarginBottom" />
+
+                            <!-- Password requirements -->
+                            <VBox
+                                id="passwordRules"
+                                visible="false"
+                                class="sapUiSmallMarginBottom">
+
+                                <Text
+                                    text="{i18n>passwordRequirements}"
+                                    class="sapUiTinyMarginBottom" />
+
+                                <ObjectStatus
+                                    id="ruleLength"
+                                    text="{i18n>passwordRuleLength}"
+                                    state="Error"
+                                    icon="sap-icon://decline" />
+
+                                <ObjectStatus
+                                    id="ruleUppercase"
+                                    text="{i18n>passwordRuleUppercase}"
+                                    state="Error"
+                                    icon="sap-icon://decline" />
+
+                                <ObjectStatus
+                                    id="ruleLowercase"
+                                    text="{i18n>passwordRuleLowercase}"
+                                    state="Error"
+                                    icon="sap-icon://decline" />
+
+                                <ObjectStatus
+                                    id="ruleNumber"
+                                    text="{i18n>passwordRuleNumber}"
+                                    state="Error"
+                                    icon="sap-icon://decline" />
+
+                                <ObjectStatus
+                                    id="ruleSpecial"
+                                    text="{i18n>passwordRuleSpecial}"
+                                    state="Error"
+                                    icon="sap-icon://decline" />
+
+                            </VBox>
+
+                            <!-- Register -->
+                            <Button
+                                text="{i18n>registerButton}"
+                                type="Emphasized"
+                                width="100%" 
+                                press=".onRegisterSubmit" />
+
+                        </VBox>
+                        <VBox
+                            id="registerSuccessArea"
+                            visible="false"
+                            width="100%"
+                            height="100%"
+                            alignItems="Center"
+                            justifyContent="Center">
+
+                            <Image
+                                src="images/tik.png"
+                                width="6rem"
+                                densityAware="false"
+                                class="sapUiMediumMarginBottom" />
+
+                            <Title
+                                text="{i18n>checkEmail}"
+                                level="H2"
+                                class="sapUiSmallMarginBottom" />
+
+                            <Text
+                                text="{i18n>checkEmail}"
+                                textAlign="Center"
+                                width="24rem" />
+
+                            <core:Icon
+                                src="sap-icon://navigation-down-arrow"
+                                size="1.5rem"
+                                class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+
+                            <Button
+                                text="{i18n>goToLogin}"
+                                type="Emphasized"
+                                width="10rem"
+                                press=".onGoToLogin" />
+
+                        </VBox>
+                    </Panel>
+
+                </VBox>
+                </VBox>
+            </HBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

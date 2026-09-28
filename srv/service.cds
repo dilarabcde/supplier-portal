@@ -40,4 +40,8 @@ service SupplierManagementService {
     action verifyEmail(
         token : String
     ) returns String;
+
+    action getSupplierEmail(
+        supplierId : UUID
+    ) returns String;
 }

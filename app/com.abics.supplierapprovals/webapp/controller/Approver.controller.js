@@ -7,7 +7,7 @@ sap.ui.define([
 ], function (BaseController, JSONModel, Filter, FilterOperator, Fragment) {
     "use strict";
 
-    return BaseController.extend("com.abics.supplierportal.controller.Approver", {
+    return BaseController.extend("com.abics.supplierapprovals.controller.Approver", {
 
         onInit: function () {
             this._selectedStatus = "";
@@ -20,7 +20,7 @@ sap.ui.define([
         _loadApplications: async function () {
             try {
                 const response = await fetch(
-                    "http://localhost:4004/odata/v4/supplier-management/Applications"
+                    "/odata/v4/supplier-management/Applications"
                 );
 
                 if (!response.ok) {
@@ -37,7 +37,7 @@ sap.ui.define([
                     if (app.supplier_ID) {
                         try {
                             const emailResponse = await fetch(
-                                "http://localhost:4004/odata/v4/supplier-management/getSupplierEmail",
+                                "/odata/v4/supplier-management/getSupplierEmail",
                                 {
                                     method: "POST",
                                     headers: {
@@ -261,7 +261,7 @@ sap.ui.define([
                 this._oApplicationDetailDialog =
                     await Fragment.load({
                         id: this.getView().getId(),
-                        name: "com.abics.supplierportal.fragment.ApplicationDetailDialog",
+                        name: "com.abics.supplierapprovals.fragment.ApplicationDetailDialog",
                         controller: this
                     });
 
@@ -283,7 +283,7 @@ sap.ui.define([
                     .getData();
 
                 const response = await fetch(
-                    "http://localhost:4004/odata/v4/supplier-management/startReview",
+                    "/odata/v4/supplier-management/startReview",
                     {
                         method: "POST",
                         headers: {

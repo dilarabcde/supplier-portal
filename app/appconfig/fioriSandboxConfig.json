@@ -1,0 +1,78 @@
+{
+  "services": {
+    "LaunchPage": {
+      "adapter": {
+        "config": {
+          "groups": [
+            {
+              "id": "SupplierPortal",
+              "title": "Supplier Portal",
+              "isPreset": true,
+              "isVisible": true,
+              "isGroupLocked": false,
+              "tiles": [
+                {
+                  "id": "SupplierApplication",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Supplier Portal",
+                    "targetURL": "#Supplier-display"
+                  }
+                },
+                {
+                  "id": "SupplierApprovals",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Supplier Approvals",
+                    "targetURL": "#SupplierApprovals-manage"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "NavTargetResolution": {
+      "config": {
+        "enableClientSideTargetResolution": true
+      }
+    },
+    "ClientSideTargetResolution": {
+      "adapter": {
+        "config": {
+          "inbounds": {
+            "SupplierApplication": {
+              "semanticObject": "Supplier",
+              "action": "display",
+              "title": "Supplier Portal",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=com.abics.supplierportal",
+                "url": "/com.abics.supplierportal"
+              }
+            },
+            "SupplierApprovals": {
+              "semanticObject": "SupplierApprovals",
+              "action": "manage",
+              "title": "Supplier Approvals",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=com.abics.supplierapprovals",
+                "url": "/com.abics.supplierapprovals/webapp"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

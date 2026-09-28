@@ -1,5 +1,5 @@
 <mvc:View
-    controllerName="com.abics.supplierportal.controller.Approver"
+    controllerName="com.abics.supplierapprovals.controller.Approver"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns="sap.m">
@@ -12,7 +12,7 @@
 
             <!-- Banner -->
             <Image
-               src="images/bremen-main.jpeg"
+                src="/com.abics.supplierapprovals/webapp/images/bremen-main.jpeg"
                  height="23rem"
                 width="100%"
                 densityAware="false"
