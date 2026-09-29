@@ -10,14 +10,14 @@
     },
     {
       "source": "^/com\\.abics\\.supplierportal/(.*)$",
-      "target": "$1",
-      "localDir": "../com.abics.supplierportal",
+      "target": "/com.abics.supplierportal/$1",
+      "destination": "cap-backend",
       "authenticationType": "none"
     },
     {
       "source": "^/com\\.abics\\.supplierapprovals/(.*)$",
-      "target": "$1",
-      "localDir": "../com.abics.supplierapprovals/webapp",
+      "target": "/com.abics.supplierapprovals/$1",
+      "destination": "cap-backend",
       "authenticationType": "none"
     },
     {
