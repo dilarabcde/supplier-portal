@@ -161,17 +161,10 @@ this.on("register", async (request) => {
 const passwordHash = `${salt}:${derivedKey.toString("hex")}`;
 
     const verificationToken = crypto.randomBytes(32).toString("hex");
-
-    await INSERT.into(SupplierUsers).entries({
-        email,
-        passwordHash,
-        emailVerified: false,
-        verificationToken
-    });
     
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const verificationUrl =`http://localhost:4004/verify-email?token=${verificationToken}`;
+    const verificationUrl = `http://localhost:5000/verify-email?token=${verificationToken}`;
     
     
     const { error } = await resend.emails.send({
@@ -190,7 +183,12 @@ const passwordHash = `${salt}:${derivedKey.toString("hex")}`;
         console.error("Verification e-mail error:", error);
         return request.reject(500, "Verification e-mail could not be sent");
     }
-
+    await INSERT.into(SupplierUsers).entries({
+        email,
+        passwordHash,
+        emailVerified: false,
+        verificationToken
+    });
     return "Registration successful";
 });
 this.on("verifyEmail", async (request) => {

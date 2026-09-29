@@ -5,10 +5,11 @@
     <Dialog
         id="applicationDetailDialog"
         title="{selectedApplication>/companyName}"
-        contentWidth="50rem"
-        contentHeight="35rem"
+        contentWidth="55rem"
+        contentHeight="42rem"
         draggable="true"
-        resizable="true">
+        resizable="true"
+        verticalScrolling="true">
 
         <content>
 
@@ -44,7 +45,6 @@
                             class="sapUiSmallMarginBottom" />
 
                         <Label text="{i18n>phone}" />
-
                         <HBox class="sapUiSmallMarginBottom">
                             <Text text="{selectedApplication>/phoneCountryCode}" />
                             <Text
@@ -92,103 +92,92 @@
                     </VBox>
 
                 </HBox>
+
                 <!-- ONAY DURUMU -->
-                <VBox class="sapUiMediumMarginTop">
+                <Title
+                    text="{i18n>approvalStatus}"
+                    level="H3"
+                    class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
 
-                    <Title
-                        text="{i18n>approvalStatus}"
-                        level="H3"
-                        class="sapUiSmallMarginBottom" />
+                <Toolbar />
 
-                    <Toolbar />
+                <HBox
+                    width="100%"
+                    justifyContent="Center"
+                    alignItems="Center"
+                    class="sapUiMediumMarginTop sapUiMediumMarginBottom">
 
-                    <HBox
-                        width="100%"
-                        justifyContent="Center"
-                        alignItems="Center"
-                        class="sapUiMediumMarginTop sapUiMediumMarginBottom">
+                    <!-- GÖNDERİLDİ -->
+                    <VBox width="10rem" alignItems="Center">
 
-                        <!-- 1. GÖNDERİLDİ -->
-                        <VBox
-                            width="10rem"
-                            alignItems="Center">
+                        <Avatar
+                            displayShape="Circle"
+                            displaySize="M"
+                            src="sap-icon://document-text"
+                            backgroundColor="Accent8" />
 
-                            <Avatar
-                                displayShape="Circle"
-                                displaySize="M"
-                                src="sap-icon://document-text"
-                                backgroundColor="Accent8" />
+                        <Text
+                            text="{i18n>submitted}"
+                            class="sapUiTinyMarginTop" />
 
-                            <Text
-                                text="{i18n>submitted}"
-                                class="sapUiTinyMarginTop" />
+                        <ObjectStatus
+                            text="{i18n>completed}"
+                            state="Success"
+                            class="sapUiTinyMarginTop" />
 
-                            <ObjectStatus
-                                text="{i18n>completed}"
-                                state="Success"
-                                class="sapUiTinyMarginTop" />
+                    </VBox>
 
-                        </VBox>
+                    <core:Icon
+                        src="sap-icon://navigation-right-arrow"
+                        size="1.5rem"
+                        class="sapUiMediumMarginBeginEnd" />
 
-                        <!-- OK -->
-                        <core:Icon
-                            src="sap-icon://navigation-right-arrow"
-                            size="1.5rem"
-                            class="sapUiMediumMarginBeginEnd" />
+                    <!-- İNCELEMEDE -->
+                    <VBox width="10rem" alignItems="Center">
 
-                        <!-- 2. İNCELEMEDE -->
-                        <VBox
-                            width="10rem"
-                            alignItems="Center">
+                        <Avatar
+                            displayShape="Circle"
+                            displaySize="M"
+                            src="sap-icon://inspection"
+                            backgroundColor="Accent2" />
 
-                            <Avatar
-                                displayShape="Circle"
-                                displaySize="M"
-                                src="sap-icon://inspection"
-                                backgroundColor="Accent2" />
+                        <Text
+                            text="{i18n>underReview}"
+                            class="sapUiTinyMarginTop" />
 
-                            <Text
-                                text="{i18n>underReview}"
-                                class="sapUiTinyMarginTop" />
+                        <ObjectStatus
+                            text="{selectedApplication>/reviewText}"
+                            state="{selectedApplication>/reviewState}"
+                            class="sapUiTinyMarginTop" />
 
-                            <ObjectStatus
-                                text="{selectedApplication>/reviewText}"
-                                state="{selectedApplication>/reviewState}"
-                                class="sapUiTinyMarginTop" />
+                    </VBox>
 
-                        </VBox>
+                    <core:Icon
+                        src="sap-icon://navigation-right-arrow"
+                        size="1.5rem"
+                        class="sapUiMediumMarginBeginEnd" />
 
-                        <!-- OK -->
-                        <core:Icon
-                            src="sap-icon://navigation-right-arrow"
-                            size="1.5rem"
-                            class="sapUiMediumMarginBeginEnd" />
+                    <!-- SONUÇ -->
+                    <VBox width="10rem" alignItems="Center">
 
-                        <!-- 3. SONUÇ -->
-                        <VBox
-                            width="10rem"
-                            alignItems="Center">
+                        <Avatar
+                            displayShape="Circle"
+                            displaySize="M"
+                            src="sap-icon://complete"
+                            backgroundColor="Accent6" />
 
-                            <Avatar
-                                displayShape="Circle"
-                                displaySize="M"
-                                src="sap-icon://complete"
-                                backgroundColor="Accent6" />
+                        <Text
+                            text="{i18n>result}"
+                            class="sapUiTinyMarginTop" />
 
-                            <Text
-                                text="{i18n>result}"
-                                class="sapUiTinyMarginTop" />
+                        <ObjectStatus
+                            text="{selectedApplication>/resultText}"
+                            state="{selectedApplication>/resultState}"
+                            class="sapUiTinyMarginTop" />
 
-                            <ObjectStatus
-                                text="{selectedApplication>/resultText}"
-                                state="{selectedApplication>/resultState}"
-                                class="sapUiTinyMarginTop" />
+                    </VBox>
 
-                        </VBox>
-
-                    </HBox>
-
-                </VBox>
+                </HBox>
 
                 <!-- SERTİFİKA -->
                 <Title
@@ -198,34 +187,132 @@
 
                 <HBox
                     alignItems="Center"
-                    visible="{= !!${selectedApplication>/certificateName} }">
+                    visible="{= !!${selectedApplication>/certificateName} }"
+                    class="sapUiSmallMarginBottom">
 
                     <core:Icon
                         src="sap-icon://pdf-attachment"
                         size="1.5rem"
                         class="sapUiTinyMarginEnd" />
 
-                    <Text
-                        text="{selectedApplication>/certificateName}" />
+                    <Link
+                        text="{selectedApplication>/certificateName}"
+                        press=".onOpenCertificate" />
 
                 </HBox>
+
+                <!-- İNCELEME / KARAR ALANI -->
+                <VBox
+                    visible="{selectedApplication>/isInReview}"
+                    class="sapUiMediumMarginTop">
+
+                    <!-- DÜZENLENECEK ALANLAR -->
+                    <Label
+                        text="{i18n>revisionFields}"
+                        design="Bold"
+                        class="sapUiTinyMarginBottom" />
+
+                    <MultiComboBox
+                        id="revisionFields"
+                        width="100%"
+                        placeholder="{i18n>selectRevisionFields}"
+                        class="sapUiSmallMarginBottom">
+
+                        <core:Item
+                            key="companyName"
+                            text="{i18n>companyName}" />
+
+                        <core:Item
+                            key="contactPerson"
+                            text="{i18n>contactPerson}" />
+
+                        <core:Item
+                            key="phoneNumber"
+                            text="{i18n>phone}" />
+
+                        <core:Item
+                            key="country"
+                            text="{i18n>country}" />
+
+                        <core:Item
+                            key="category"
+                            text="{i18n>category}" />
+
+                        <core:Item
+                            key="taxNumber"
+                            text="{i18n>taxNumber}" />
+
+                        <core:Item
+                            key="website"
+                            text="{i18n>website}" />
+
+                        <core:Item
+                            key="address"
+                            text="{i18n>address}" />
+
+                        <core:Item
+                            key="notes"
+                            text="{i18n>notes}" />
+
+                        <core:Item
+                            key="certificate"
+                            text="{i18n>certificate}" />
+
+                    </MultiComboBox>
+
+                    <!-- KARAR NOTU -->
+                    <Label
+                        text="{i18n>decisionNote}"
+                        design="Bold"
+                        class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+
+                    <TextArea
+                        id="decisionNote"
+                        width="100%"
+                        rows="3"
+                        maxLength="1000"
+                        placeholder="{i18n>decisionNotePlaceholder}" />
+
+                </VBox>
 
             </VBox>
 
         </content>
-        <beginButton>
+
+        <buttons>
+
             <Button
                 text="{i18n>startReview}"
                 type="Emphasized"
-                visible="{= ${selectedApplication>/status} === 'Submitted' }"
+                visible="{selectedApplication>/isSubmitted}"
                 press=".onStartReview" />
-        </beginButton>
 
-        <endButton>
+            <Button
+                text="{i18n>aiAnalyze}"
+                icon="sap-icon://activate"
+                type="Emphasized"
+                visible="{selectedApplication>/isInReview}"
+                press=".onAIAnalyze" />
+
+            <Button
+                text="{i18n>approve}"
+                icon="sap-icon://accept"
+                type="Accept"
+                visible="{selectedApplication>/isInReview}"
+                press=".onApproveApplication" />
+
+            <Button
+                text="{i18n>reject}"
+                icon="sap-icon://decline"
+                type="Reject"
+                visible="{selectedApplication>/isInReview}"
+                press=".onRejectApplication" />
+
             <Button
                 text="{i18n>close}"
                 press=".onCloseApplicationDialog" />
-        </endButton>
+
+        </buttons>
 
     </Dialog>
 

@@ -4,7 +4,7 @@
   "description": "Approuter for Supplier Portal",
   "main": "index.js",
   "scripts": {
-    "start": "node node_modules/@sap/approuter/approuter.js"
+    "start": "destinations='[{\"name\":\"cap-backend\",\"url\":\"http://localhost:4004\",\"forwardAuthToken\":false}]' node node_modules/@sap/approuter/approuter.js"
   },
   "license": "ISC",
   "type": "commonjs",

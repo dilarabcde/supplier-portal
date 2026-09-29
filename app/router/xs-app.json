@@ -9,9 +9,21 @@
       "authenticationType": "none"
     },
     {
-      "source": "^(.*)$",
+      "source": "^/com\\.abics\\.supplierportal/(.*)$",
       "target": "$1",
-      "destination": "cap-backend",
+      "localDir": "../com.abics.supplierportal",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/com\\.abics\\.supplierapprovals/(.*)$",
+      "target": "$1",
+      "localDir": "../com.abics.supplierapprovals/webapp",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/(.*)$",
+      "target": "$1",
+      "localDir": ".",
       "authenticationType": "none"
     }
   ]

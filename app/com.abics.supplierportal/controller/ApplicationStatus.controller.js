@@ -20,8 +20,7 @@ sap.ui.define([
             console.log("Application Status ID:", sApplicationId);
 
             const oResponse = await fetch(
-                `http://localhost:4004/odata/v4/supplier-management/Applications(${sApplicationId})`
-            );
+                `/odata/v4/supplier-management/Applications(${sApplicationId})`);
 
             const oApplication = await oResponse.json();
             oApplication.email = sessionStorage.getItem("supplierEmail") || "";

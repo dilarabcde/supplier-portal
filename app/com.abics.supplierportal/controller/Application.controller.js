@@ -247,7 +247,7 @@ sap.ui.define([
                         press: async () => {
                             try {
                                 const oResponse = await fetch(
-                                    "http://localhost:4004/odata/v4/supplier-management/Applications",
+                                    "/odata/v4/supplier-management/Applications",
                                     {
                                         method: "POST",
                                         headers: {
@@ -270,7 +270,7 @@ sap.ui.define([
 
                                 if (oFile) {
                                     const oUploadResponse = await fetch(
-                                        `http://localhost:4004/odata/v4/supplier-management/Applications(${oCreatedApplication.ID})/certificate`,
+                                        `/odata/v4/supplier-management/Applications(${oCreatedApplication.ID})/certificate`,
                                         {
                                             method: "PUT",
                                             headers: {

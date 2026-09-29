@@ -3,8 +3,18 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/core/Fragment"
-], function (BaseController, JSONModel, Filter, FilterOperator, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast"
+], function (
+    BaseController,
+    JSONModel,
+    Filter,
+    FilterOperator,
+    Fragment,
+    MessageBox,
+    MessageToast
+) {
     "use strict";
 
     return BaseController.extend("com.abics.supplierapprovals.controller.Approver", {
@@ -72,9 +82,26 @@ sap.ui.define([
                     }
                 }
 
-                // Tablo sıra numarası
+                // Tablo sıra numarası ve durum metni
                 applications.forEach((app, index) => {
                     app.rowNumber = index + 1;
+
+                    switch (app.status) {
+                        case "Submitted":
+                            app.statusText = "Gönderildi";
+                            break;
+                        case "InReview":
+                            app.statusText = "İnceleniyor";
+                            break;
+                        case "Approved":
+                            app.statusText = "Onaylandı";
+                            break;
+                        case "Rejected":
+                            app.statusText = "Reddedildi";
+                            break;
+                        default:
+                            app.statusText = app.status;
+                    }
                 });
 
                 const oModel = new JSONModel({
@@ -215,10 +242,14 @@ sap.ui.define([
 
             const sStatus = oApplication.status;
 
-            const oDetailData = {
-                ...oApplication,
+        const oDetailData = {
+            ...oApplication,
 
-                submittedState: "Success",
+            isSubmitted: sStatus === "Submitted",
+            isInReview: sStatus === "InReview",
+            isFinished: sStatus === "Approved" || sStatus === "Rejected",
+
+            submittedState: "Success",
 
                 reviewState:
                     sStatus === "Submitted"
@@ -248,7 +279,8 @@ sap.ui.define([
                             ? "Reddedildi"
                             : ""
             };
-
+            console.log("DETAIL DEBUG:", sStatus, oDetailData.isInReview, oDetailData);
+            
             const oDetailModel = new JSONModel(oDetailData);
             this.getView().setModel(oDetailModel, "selectedApplication");
 
@@ -309,9 +341,137 @@ sap.ui.define([
                 console.error("Error starting review:", error);
             }
         },
+        onOpenCertificate: async function () {
+            try {
+                const oApplication = this.getView()
+                    .getModel("selectedApplication")
+                    .getData();
+
+                if (!oApplication || !oApplication.ID) {
+                    MessageBox.error("Sertifika bulunamadı.");
+                    return;
+                }
+
+                const sUrl =
+                    "/odata/v4/supplier-management/Applications(" +
+                    oApplication.ID +
+                    ")/certificate/$value";
+
+                const response = await fetch(sUrl);
+
+                if (!response.ok) {
+                    throw new Error("PDF could not be loaded.");
+                }
+
+                const blob = await response.blob();
+
+                const pdfBlob = new Blob(
+                    [blob],
+                    { type: "application/pdf" }
+                );
+
+                const sPdfUrl = URL.createObjectURL(pdfBlob);
+
+                window.open(sPdfUrl, "_blank");
+
+                setTimeout(function () {
+                    URL.revokeObjectURL(sPdfUrl);
+                }, 60000);
+
+            } catch (error) {
+                console.error("Error opening certificate:", error);
+                MessageBox.error("Sertifika açılamadı.");
+            }
+        },
+        onApproveApplication: async function () {
+            try {
+                const oApplication = this.getView()
+                    .getModel("selectedApplication")
+                    .getData();
+
+                const response = await fetch(
+                    "/odata/v4/supplier-management/approveApplication",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            applicationId: oApplication.ID
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                this._oApplicationDetailDialog.close();
+
+                await this._loadApplications();
+
+                MessageToast.show("Başvuru onaylandı.");
+
+            } catch (error) {
+                console.error("Error approving application:", error);
+                MessageBox.error("Başvuru onaylanamadı.");
+            }
+        },
+
+        onRejectApplication: async function () {
+            try {
+                const oApplication = this.getView()
+                    .getModel("selectedApplication")
+                    .getData();
+
+                const sReason = this.byId("decisionNote")
+                    .getValue()
+                    .trim();
+
+                const aRevisionFields = this.byId("revisionFields")
+                    .getSelectedKeys();
+
+                if (!sReason) {
+                    MessageBox.warning("Başvuruyu reddetmek için karar notu zorunludur.");
+                    return;
+                }
+
+                const response = await fetch(
+                    "/odata/v4/supplier-management/rejectApplication",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            applicationId: oApplication.ID,
+                            reason: sReason,
+                            revisionFields: aRevisionFields
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                this._oApplicationDetailDialog.close();
+
+                await this._loadApplications();
+
+                MessageToast.show("Başvuru reddedildi.");
+
+            } catch (error) {
+                console.error("Error rejecting application:", error);
+                MessageBox.error("Başvuru reddedilemedi.");
+            }
+        },
         onCloseApplicationDialog: function () {
             this._oApplicationDetailDialog.close();
         }
 
     });
+    
 });

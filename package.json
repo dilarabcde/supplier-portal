@@ -15,6 +15,7 @@
   "dependencies": {
     "@cap-js/hana": "^3.1.0",
     "@sap/cds": "^10.1.0",
+    "@sap/xssec": "^4.15.0",
     "pdfjs-dist": "^6.3.289",
     "resend": "^6.28.0"
   },
@@ -37,6 +38,9 @@
         "credentials": {
           "url": "db.sqlite"
         }
+      },
+      "[production]": {
+        "auth": "xsuaa"
       }
     }
   }

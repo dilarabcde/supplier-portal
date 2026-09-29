@@ -152,7 +152,7 @@ sap.ui.define([
 
 			try {
 				const response = await fetch(
-					"http://localhost:4004/odata/v4/supplier-management/register",
+					"/odata/v4/supplier-management/register",
 					{
 						method: "POST",
 						headers: {
@@ -225,7 +225,7 @@ onLoginSubmit: async function () {
     try {
 
 const response = await fetch(
-    "http://localhost:4004/odata/v4/supplier-management/login",
+    "/odata/v4/supplier-management/login",
             {
                 method: "POST",
                 headers: {
@@ -251,7 +251,7 @@ const result = await response.json();
         sessionStorage.setItem("supplierEmail", result.email);
 
 		const applicationResponse = await fetch(
-    `http://localhost:4004/odata/v4/supplier-management/Applications?$filter=supplier_ID eq ${result.userId}`
+    `/odata/v4/supplier-management/Applications?$filter=supplier_ID eq ${result.userId}`
 );
 
 const applicationData = await applicationResponse.json();

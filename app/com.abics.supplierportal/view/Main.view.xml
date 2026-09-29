@@ -310,7 +310,7 @@
                             justifyContent="Center">
 
                             <Image
-                                src="images/tik.png"
+                                src="{images>/tik}"
                                 width="6rem"
                                 densityAware="false"
                                 class="sapUiMediumMarginBottom" />

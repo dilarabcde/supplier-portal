@@ -223,7 +223,7 @@
                                 <Text text="{approver>category}" />
 
                                 <ObjectStatus
-                                    text="{approver>status}" />
+                                    text="{approver>statusText}" />
                                 <Button
                                     icon="sap-icon://navigation-right-arrow"
                                     type="Transparent"

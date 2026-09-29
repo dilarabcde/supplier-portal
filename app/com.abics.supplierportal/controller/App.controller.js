@@ -1,10 +1,9 @@
 sap.ui.define(["./BaseController"], function (BaseController) {
-	"use strict";
+    "use strict";
 
-	return BaseController.extend("com.abics.supplierportal.controller.App", {
-		onInit: function () {
-			// apply content density mode to root view
-			this.getView().addStyleClass(this.getOwnerComponent().getContentDensityClass());
-		}
-	});
+    return BaseController.extend("com.abics.supplierportal.controller.App", {
+        onInit: function () {
+            // Şimdilik burada ek işlem yok.
+        }
+    });
 });

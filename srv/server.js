@@ -19,11 +19,6 @@ cds.on("bootstrap", (app) => {
     next();
 });
 
-app.get("/images/tik.png", (request, response) => {
-    response.sendFile(
-        require("path").join(__dirname, "../webapp/images/tik.png")
-    );
-});
     app.get("/verify-email", async (request, response) => {
         const token = request.query.token;
 
@@ -61,7 +56,6 @@ app.get("/images/tik.png", (request, response) => {
             </head>
             <body>
                 <main align="center">
-                    <img src="/images/tik.png" alt="Success" width="120">
 
                     <h1>E-mail verified successfully.</h1>
 
