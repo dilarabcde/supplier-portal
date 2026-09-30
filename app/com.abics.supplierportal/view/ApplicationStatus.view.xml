@@ -11,7 +11,7 @@
 <content>
 
     <Image
-        src="images/bremen-main.jpeg"
+        src="{assets>/bannerUrl}"
         width="100%"
         height="22rem"
         densityAware="false" />

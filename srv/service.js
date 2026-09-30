@@ -164,8 +164,7 @@ const passwordHash = `${salt}:${derivedKey.toString("hex")}`;
     
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const verificationUrl = `http://localhost:5000/verify-email?token=${verificationToken}`;
-    
+    const verificationUrl = `http://localhost:4004/verify-email?token=${verificationToken}`;
     
     const { error } = await resend.emails.send({
         from: "Supplier Portal <onboarding@resend.dev>",

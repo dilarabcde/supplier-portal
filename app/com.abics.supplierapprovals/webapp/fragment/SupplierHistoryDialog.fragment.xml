@@ -1,0 +1,78 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="supplierHistoryDialog"
+        title="Tedarikçi Geçmişi"
+        contentWidth="50rem"
+        contentHeight="35rem"
+        stretchOnPhone="true">
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <Title
+                    text="{supplierHistory>companyName}"
+                    level="H2"
+                    class="sapUiSmallMarginBottom" />
+
+                <HBox
+                    width="100%"
+                    justifyContent="SpaceBetween">
+
+                    <VBox width="48%">
+                        <Label text="İlgili Kişi" />
+                        <Text
+                            text="{supplierHistory>contactPerson}"
+                            class="sapUiSmallMarginBottom" />
+
+                        <Label text="E-Posta" />
+                        <Text
+                            text="{supplierHistory>supplierEmail}"
+                            class="sapUiSmallMarginBottom" />
+
+                        <Label text="Kategori" />
+                        <Text text="{supplierHistory>category}" />
+                    </VBox>
+
+                    <VBox width="48%">
+                        <Label text="Telefon" />
+                        <Text
+                            text="{supplierHistory>phoneCountryCode} {supplierHistory>phoneNumber}"
+                            class="sapUiSmallMarginBottom" />
+
+                        <Label text="Ülke" />
+                        <Text
+                            text="{supplierHistory>country}"
+                            class="sapUiSmallMarginBottom" />
+
+                        <Label text="Web Sitesi" />
+                        <Text text="{supplierHistory>website}" />
+                    </VBox>
+
+                </HBox>
+
+                <Title
+                    text="Başvuru Geçmişi"
+                    level="H3"
+                    class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+
+                <ObjectStatus
+                    text="Geçmiş bilgileri yükleniyor..."
+                    state="Information" />
+
+            </VBox>
+
+        </content>
+
+        <beginButton>
+            <Button
+                text="Kapat"
+                press=".onCloseSupplierHistory" />
+        </beginButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

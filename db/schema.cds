@@ -58,4 +58,5 @@ entity ApplicationHistory : cuid, managed {
     action : String(50) not null;
     reason : String(1000);
     performedBy : String(255);
+    revisionFields : String(1000);
 }

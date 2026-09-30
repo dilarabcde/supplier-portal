@@ -6,12 +6,23 @@ sap.ui.define([
 
     return Controller.extend("com.abics.supplierportal.controller.ApplicationStatus", {
 
-        onInit: function () {
-            this.getOwnerComponent()
-                .getRouter()
-                .getRoute("applicationStatus")
-                .attachPatternMatched(this._onRouteMatched, this);
-        },
+    onInit: function () {
+        const sBannerUrl = sap.ui.require.toUrl(
+            "com/abics/supplierportal/images/bremen-main.jpeg"
+        );
+
+        this.getView().setModel(
+            new JSONModel({
+                bannerUrl: sBannerUrl
+            }),
+            "assets"
+        );
+
+        this.getOwnerComponent()
+            .getRouter()
+            .getRoute("applicationStatus")
+            .attachPatternMatched(this._onRouteMatched, this);
+    },
 
         _onRouteMatched: async function () {
             const sApplicationId =

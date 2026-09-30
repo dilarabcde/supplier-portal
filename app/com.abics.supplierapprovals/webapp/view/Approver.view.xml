@@ -34,6 +34,7 @@
         header="{i18n>allApplications}"
         press=".onFilterApplications"
         class="sapUiTinyMarginBeginEnd">
+
         <customData>
             <core:CustomData key="status" value="" />
         </customData>
@@ -46,6 +47,7 @@
         </TileContent>
     </GenericTile>
 
+
     <!-- BEKLEYEN -->
     <GenericTile
         frameType="TwoByHalf"
@@ -53,6 +55,7 @@
         header="{i18n>pendingApplications}"
         press=".onFilterApplications"
         class="sapUiTinyMarginBeginEnd">
+
         <customData>
             <core:CustomData key="status" value="Pending" />
         </customData>
@@ -65,6 +68,7 @@
         </TileContent>
     </GenericTile>
 
+
     <!-- ONAYLANAN -->
     <GenericTile
         frameType="TwoByHalf"
@@ -72,6 +76,7 @@
         header="{i18n>approvedApplications}"
         press=".onFilterApplications"
         class="sapUiTinyMarginBeginEnd">
+
         <customData>
             <core:CustomData key="status" value="Approved" />
         </customData>
@@ -84,6 +89,7 @@
         </TileContent>
     </GenericTile>
 
+
     <!-- REDDEDİLEN -->
     <GenericTile
         frameType="TwoByHalf"
@@ -91,6 +97,7 @@
         header="{i18n>rejectedApplications}"
         press=".onFilterApplications"
         class="sapUiTinyMarginBeginEnd">
+
         <customData>
             <core:CustomData key="status" value="Rejected" />
         </customData>
@@ -103,43 +110,24 @@
         </TileContent>
     </GenericTile>
 
+
     <!-- TÜM TEDARİKÇİLER -->
-        <GenericTile
-            frameType="TwoByHalf"
-            width="19rem"
-            header="{i18n>allSuppliers}"
-            press=".onFilterApplications">
+    <GenericTile
+        frameType="TwoByHalf"
+        width="19rem"
+        header="{i18n>allSuppliers}"
+        press=".onShowSuppliers"
+        class="sapUiTinyMarginBeginEnd">
 
-            <customData>
-                <core:CustomData
-                    key="status"
-                    value="Approved" />
-            </customData>
+        <TileContent>
+            <NumericContent
+                value="{approver>/counts/suppliers}"
+                icon="sap-icon://group"
+                valueColor="Neutral" />
+        </TileContent>
+    </GenericTile>
 
-            <TileContent>
-                <NumericContent
-                    value="{approver>/counts/suppliers}"
-                    icon="sap-icon://group"
-                    valueColor="Neutral" />
-            </TileContent>
-
-        </GenericTile>
-
-        </HBox>
-        </VBox>
-        <HBox
-            width="100%"
-            justifyContent="Center">
-
-            <VBox
-                width="95%"
-                class="sapUiMediumTinyTop">
-
-        <Panel
-            width="100%"
-            class="sapUiSmallMarginTop">
-
-        <content>
+</HBox>
                 <!-- Başvurular -->
                 <Table
                     id="applicationsTable"
@@ -151,7 +139,7 @@
                     <Toolbar>
 
                         <Title
-                            text="{i18n>applicationsTitle}"
+                            text="{approver>/tableTitle}"
                             level="H3" />
 
                         <ToolbarSpacer />
@@ -235,15 +223,11 @@
                         </ColumnListItem>
 
                     </items>
-</Table>
-    </content>
-</Panel>
-    </VBox>
+        </Table>
 
-</HBox>
+</VBox>
 
-        </content>
-
-    </Page>
+</content>
+</Page>
 
 </mvc:View>

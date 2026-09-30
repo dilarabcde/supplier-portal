@@ -19,12 +19,13 @@ sap.ui.define([
 
     return BaseController.extend("com.abics.supplierapprovals.controller.Approver", {
 
-        onInit: function () {
-            this._selectedStatus = "";
+        onInit: async function () {
+            this._selectedStatus = "Pending";
             this._selectedCategory = "";
             this._searchQuery = "";
 
-            this._loadApplications();
+            await this._loadApplications();
+            this._applyFilters();
         },
 
         _loadApplications: async function () {
@@ -103,36 +104,39 @@ sap.ui.define([
                             app.statusText = app.status;
                     }
                 });
+            const oModel = new JSONModel({
+                applications: applications,
 
-                const oModel = new JSONModel({
-                    applications: applications,
+tableTitle: "Başvurular",
 
-                    counts: {
-                        all: applications.length,
+                counts: {
+                    all: applications.length,
 
-                        pending: applications.filter(
-                            app =>
-                                app.status === "Submitted" ||
-                                app.status === "InReview"
-                        ).length,
+                    pending: applications.filter(
+                        app =>
+                            app.status === "Submitted" ||
+                            app.status === "InReview"
+                    ).length,
 
-                        approved: applications.filter(
-                            app => app.status === "Approved"
-                        ).length,
+                    approved: applications.filter(
+                        app => app.status === "Approved"
+                    ).length,
 
-                        rejected: applications.filter(
-                            app => app.status === "Rejected"
-                        ).length,
+                    rejected: applications.filter(
+                        app => app.status === "Rejected"
+                    ).length,
 
-                        suppliers: applications.filter(
-                            app => app.status === "Approved"
-                        ).length
-                    }
-                });
+                    suppliers: applications.filter(
+                        app => app.status === "Approved"
+                    ).length
+                }
+            });
 
-                this.getView().setModel(oModel, "approver");
+            this.getView().setModel(oModel, "approver");
 
-                console.log("Applications with emails:", applications);
+            console.log("Applications with emails:", applications);
+
+            console.log("Applications with emails:", applications);
 
             } catch (error) {
                 console.error("Error loading applications:", error);
@@ -213,12 +217,36 @@ sap.ui.define([
             oBinding.filter(aFilters);
         },
 
-        onFilterApplications: function (oEvent) {
-            this._selectedStatus =
-                oEvent.getSource().data("status") || "";
+onFilterApplications: function (oEvent) {
+    this._selectedStatus =
+        oEvent.getSource().data("status") || "";
 
-            this._applyFilters();
-        },
+    this._isSupplierHistoryMode = false;
+
+    const oModel = this.getView().getModel("approver");
+
+    if (oModel) {
+        oModel.setProperty("/tableTitle", "Başvurular");
+    }
+
+    this._applyFilters();
+},
+
+onShowSuppliers: function () {
+    this._selectedStatus = "Approved";
+    this._selectedCategory = "";
+    this._searchQuery = "";
+
+    this._isSupplierHistoryMode = true;
+
+    const oModel = this.getView().getModel("approver");
+
+    if (oModel) {
+        oModel.setProperty("/tableTitle", "Tedarikçiler");
+    }
+
+    this._applyFilters();
+},
 
         onSearchApplications: function (oEvent) {
             this._searchQuery =
@@ -240,107 +268,230 @@ sap.ui.define([
                 .getBindingContext("approver")
                 .getObject();
 
+            if (this._isSupplierHistoryMode) {
+                await this._openSupplierHistory(oApplication);
+                return;
+            }
+
             const sStatus = oApplication.status;
 
-        const oDetailData = {
-            ...oApplication,
+            const oDetailData = {
+                ...oApplication,
 
-            isSubmitted: sStatus === "Submitted",
-            isInReview: sStatus === "InReview",
-            isFinished: sStatus === "Approved" || sStatus === "Rejected",
+                isSubmitted: sStatus === "Submitted",
+                isInReview: sStatus === "InReview",
+                isFinished: sStatus === "Approved" || sStatus === "Rejected",
 
-            submittedState: "Success",
+                submittedState: "Success",
 
-                reviewState:
-                    sStatus === "Submitted"
-                        ? "None"
+                    reviewState:
+                        sStatus === "Submitted"
+                            ? "None"
+                            : sStatus === "InReview"
+                                ? "Warning"
+                                : "Success",
+
+                    reviewText:
+                        sStatus === "Submitted"
+                        ? ""
                         : sStatus === "InReview"
-                            ? "Warning"
-                            : "Success",
+                            ? "İnceleniyor"
+                            : "İncelendi",
 
-                reviewText:
-                    sStatus === "Submitted"
-                    ? ""
-                    : sStatus === "InReview"
-                        ? "İnceleniyor"
-                        : "İncelendi",
+                    resultState:
+                        sStatus === "Approved"
+                            ? "Success"
+                            : sStatus === "Rejected"
+                                ? "Error"
+                                : "None",
 
-                resultState:
-                    sStatus === "Approved"
-                        ? "Success"
-                        : sStatus === "Rejected"
-                            ? "Error"
-                            : "None",
+                    resultText:
+                        sStatus === "Approved"
+                            ? "Onaylandı"
+                            : sStatus === "Rejected"
+                                ? "Reddedildi"
+                                : ""
+                };
+                console.log("DETAIL DEBUG:", sStatus, oDetailData.isInReview, oDetailData);
+                
+                const oDetailModel = new JSONModel(oDetailData);
+                this.getView().setModel(oDetailModel, "selectedApplication");
 
-                resultText:
-                    sStatus === "Approved"
-                        ? "Onaylandı"
-                        : sStatus === "Rejected"
-                            ? "Reddedildi"
-                            : ""
-            };
-            console.log("DETAIL DEBUG:", sStatus, oDetailData.isInReview, oDetailData);
-            
-            const oDetailModel = new JSONModel(oDetailData);
-            this.getView().setModel(oDetailModel, "selectedApplication");
-
-            this.getView().setModel(
-                oDetailModel,
-                "selectedApplication"
-            );
-
-            if (!this._oApplicationDetailDialog) {
-                this._oApplicationDetailDialog =
-                    await Fragment.load({
-                        id: this.getView().getId(),
-                        name: "com.abics.supplierapprovals.fragment.ApplicationDetailDialog",
-                        controller: this
-                    });
-
-                this.getView().addDependent(
-                    this._oApplicationDetailDialog
-                );
-            }
-
-            this._oApplicationDetailDialog.open();
-        },
-
-        onRefresh: function () {
-            this._loadApplications();
-        },
-        onStartReview: async function () {
-            try {
-                const oApplication = this.getView()
-                    .getModel("selectedApplication")
-                    .getData();
-
-                const response = await fetch(
-                    "/odata/v4/supplier-management/startReview",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            applicationId: oApplication.ID
-                        })
-                    }
+                this.getView().setModel(
+                    oDetailModel,
+                    "selectedApplication"
                 );
 
-                if (!response.ok) {
-                    throw new Error("Application review could not be started.");
+                if (!this._oApplicationDetailDialog) {
+                    this._oApplicationDetailDialog =
+                        await Fragment.load({
+                            id: this.getView().getId(),
+                            name: "com.abics.supplierapprovals.fragment.ApplicationDetailDialog",
+                            controller: this
+                        });
+
+                    this.getView().addDependent(
+                        this._oApplicationDetailDialog
+                    );
                 }
 
-                // Dialogu kapat
-                this._oApplicationDetailDialog.close();
+                this._oApplicationDetailDialog.open();
+            },
 
-                // Başvuruları DB'den tekrar getir
-                await this._loadApplications();
+_openSupplierHistory: async function (oApplication) {
+    try {
+        const sApplicationId = oApplication.ID;
 
-            } catch (error) {
-                console.error("Error starting review:", error);
+        // Başvurunun tüm geçmişini getir
+        const oHistoryResponse = await fetch(
+            `/odata/v4/supplier-management/ApplicationHistory?$filter=application_ID eq ${sApplicationId}&$orderby=createdAt desc`
+        );
+
+        if (!oHistoryResponse.ok) {
+            throw new Error("Application history could not be loaded");
+        }
+
+        const oHistoryResult = await oHistoryResponse.json();
+
+        const aHistory = (oHistoryResult.value || []).map((oItem) => {
+
+            // Ret sırasında kaydettiğimiz revisionFields JSON string olarak geliyor.
+            let aRevisionFields = [];
+
+            if (oItem.revisionFields) {
+                try {
+                    aRevisionFields = JSON.parse(oItem.revisionFields);
+                } catch (error) {
+                    console.error(
+                        "Revision fields parse error:",
+                        error
+                    );
+                }
             }
-        },
+
+            return {
+                ...oItem,
+
+                revisionFieldsArray: aRevisionFields,
+
+                hasRevisionFields:
+                    aRevisionFields.length > 0,
+
+                isRejected:
+                    oItem.status === "Rejected",
+
+                isApproved:
+                    oItem.status === "Approved",
+
+                isReapplied:
+                    oItem.action === "Reapplied",
+
+                isReviewStarted:
+                    oItem.action === "ReviewStarted"
+            };
+        });
+
+        const oSupplierHistoryData = {
+            ...oApplication,
+
+            history: aHistory,
+
+            hasHistory:
+                aHistory.length > 0,
+
+            hasRejection:
+                aHistory.some(
+                    (oItem) => oItem.status === "Rejected"
+                )
+        };
+
+        console.log(
+            "SUPPLIER HISTORY:",
+            oSupplierHistoryData
+        );
+
+        const oSupplierHistoryModel =
+            new JSONModel(oSupplierHistoryData);
+
+        this.getView().setModel(
+            oSupplierHistoryModel,
+            "supplierHistory"
+        );
+
+        if (!this._oSupplierHistoryDialog) {
+            this._oSupplierHistoryDialog =
+                await Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.abics.supplierapprovals.fragment.SupplierHistoryDialog",
+                    controller: this
+                });
+
+            this.getView().addDependent(
+                this._oSupplierHistoryDialog
+            );
+        }
+
+        this._oSupplierHistoryDialog.open();
+
+    } catch (error) {
+
+        console.error(
+            "Supplier history error:",
+            error
+        );
+
+        MessageBox.error(
+            "Tedarikçi geçmişi açılamadı."
+        );
+    }
+},
+
+onCloseSupplierHistory: function () {
+    this._oSupplierHistoryDialog.close();
+},
+
+            onRefresh: function () {
+                this._loadApplications();
+            },
+onStartReview: async function () {
+    try {
+        const oModel = this.getView().getModel("selectedApplication");
+        const oApplication = oModel.getData();
+
+        const response = await fetch(
+            "/odata/v4/supplier-management/startReview",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    applicationId: oApplication.ID
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Application review could not be started.");
+        }
+
+        // Dialog KAPANMIYOR.
+        // İncelemeye Al butonunu kaldır.
+        oModel.setProperty("/status", "InReview");
+        oModel.setProperty("/isSubmitted", false);
+
+        // AI ile Analiz Et / Onayla / Reddet butonlarını göster.
+        oModel.setProperty("/isInReview", true);
+        oModel.setProperty("/isApproved", false);
+        oModel.setProperty("/isRejected", false);
+
+        // Arka plandaki listeyi güncelle.
+        await this._loadApplications();
+
+    } catch (error) {
+        console.error("Error starting review:", error);
+    }
+},
         onOpenCertificate: async function () {
             try {
                 const oApplication = this.getView()
@@ -406,10 +557,16 @@ sap.ui.define([
                     const errorText = await response.text();
                     throw new Error(errorText);
                 }
-
                 this._oApplicationDetailDialog.close();
 
+                // Onaydan sonra ana listeye geri dön
+                this._selectedStatus = "Pending";
+
+                // Backend'den güncel verileri getir
                 await this._loadApplications();
+
+                // Submitted + InReview filtresini tekrar uygula
+                this._applyFilters();
 
                 MessageToast.show("Başvuru onaylandı.");
 
@@ -459,7 +616,11 @@ sap.ui.define([
 
                 this._oApplicationDetailDialog.close();
 
+                this._selectedStatus = "Pending";
+
                 await this._loadApplications();
+
+                this._applyFilters();
 
                 MessageToast.show("Başvuru reddedildi.");
 

@@ -2,17 +2,25 @@ const cds = require('@sap/cds');
 
 class ApplicationService {
 
-    async addHistory(applicationId, status, action, reason = null, performedBy = null) {
-        const { ApplicationHistory } = cds.entities('supplierportal');
+async addHistory(
+    applicationId,
+    status,
+    action,
+    reason = null,
+    performedBy = null,
+    revisionFields = null
+) {
+    const { ApplicationHistory } = cds.entities('supplierportal');
 
-        return INSERT.into(ApplicationHistory).entries({
-            application_ID: applicationId,
-            status,
-            action,
-            reason,
-            performedBy
-        });
-    }
+    return INSERT.into(ApplicationHistory).entries({
+        application_ID: applicationId,
+        status,
+        action,
+        reason,
+        performedBy,
+        revisionFields
+    });
+}
 
     async getApplicationById(applicationId) {
         const { SupplierApplications } = cds.entities('supplierportal');
@@ -85,12 +93,15 @@ class ApplicationService {
                 reapplyAllowed: true
             })
             .where({ ID: applicationId });
-        await this.addHistory(
-            applicationId,
-            'Rejected',
-            'Rejected',
-            reason
-        );
+            
+            await this.addHistory(
+                applicationId,
+                'Rejected',
+                'Rejected',
+                reason,
+                null,
+                JSON.stringify(revisionFields)
+            );
         if (revisionFields.length > 0) {
             const entries = revisionFields.map(fieldName => ({
                 application_ID: applicationId,

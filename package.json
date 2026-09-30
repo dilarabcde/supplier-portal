@@ -31,17 +31,20 @@
     "ui5-tooling-modules": "^3.38.3",
     "wdio-ui5-service": "^3.0.12"
   },
-  "cds": {
-    "requires": {
-      "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "url": "db.sqlite"
-        }
-      },
-      "[production]": {
-        "auth": "xsuaa"
+"cds": {
+  "requires": {
+    "db": {
+      "kind": "sqlite",
+      "credentials": {
+        "url": "db.sqlite"
       }
+    },
+    "auth": {
+      "kind": "dummy"
+    },
+    "[production]": {
+      "auth": "xsuaa"
     }
   }
+}
 }
