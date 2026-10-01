@@ -38,7 +38,249 @@ sap.ui.define([
                 if (oEmailText) {
                     oEmailText.setText(sEmail || "");
                 }
+
+                this._loadRejectedApplicationForEditing();
             },
+
+            _loadRejectedApplicationForEditing: async function () {
+                const sEditApplicationId =
+                    sessionStorage.getItem("editApplicationId");
+
+                if (!sEditApplicationId) {
+                    return;
+                }
+
+                try {
+                    const oResponse = await fetch(
+                        `/odata/v4/supplier-management/Applications(${sEditApplicationId})`
+                    );
+
+                    if (!oResponse.ok) {
+                        throw new Error("Application could not be loaded.");
+                    }
+
+                    const oApplication = await oResponse.json();
+                    const oExistingCertificateBox = this.byId("existingCertificateBox");
+                        const oExistingCertificateLink = this.byId("existingCertificateLink");
+
+                        if (oApplication.certificateName) {
+                            oExistingCertificateLink.setText(oApplication.certificateName);
+                            oExistingCertificateBox.setVisible(true);
+                        } else {
+                            oExistingCertificateBox.setVisible(false);
+                        }
+
+                    const oRevisionResponse = await fetch(
+                        `/odata/v4/supplier-management/ApplicationRevisionFields?$filter=application_ID eq ${sEditApplicationId}`
+                    );
+
+                    if (!oRevisionResponse.ok) {
+                        throw new Error("Revision fields could not be loaded.");
+                    }
+
+                    const oRevisionData = await oRevisionResponse.json();
+
+                    const aRevisionFields = (oRevisionData.value || []).map(
+                        (oItem) => oItem.fieldName
+                    );
+
+                    console.log("Revision fields:", aRevisionFields);
+
+                    const mFieldControls = {
+                        companyName: "companyNameInput",
+                        contactPerson: "contactPersonInput",
+                        phoneNumber: "phoneInput",
+                        country: "countrySelect",
+                        category: "categorySelect",
+                        taxNumber: "taxNumberInput",
+                        website: "websiteInput",
+                        address: "addressInput",
+                        notes: "notesInput",
+                        certificate: "certificateUploader"
+                    };
+
+                    Object.entries(mFieldControls).forEach(
+                        ([sFieldName, sControlId]) => {
+                            const oControl = this.byId(sControlId);
+
+                            if (!oControl) {
+                                return;
+                            }
+
+                            const bCanEdit =
+                                aRevisionFields.includes(sFieldName);
+
+                            if (typeof oControl.setEditable === "function") {
+                                oControl.setEditable(bCanEdit);
+                            } else if (
+                                typeof oControl.setEnabled === "function"
+                            ) {
+                                oControl.setEnabled(bCanEdit);
+                            }
+                        }
+                    );
+
+                    const bPhoneEditable =
+                        aRevisionFields.includes("phoneNumber");
+
+                    this.byId("phoneInput").setEditable(bPhoneEditable);
+                    this.byId("phoneCodeSelect").setEnabled(bPhoneEditable);
+
+                    oApplication.revisionFieldsArray = aRevisionFields;
+
+                    this.byId("companyNameInput").setValue(
+                        oApplication.companyName || ""
+                    );
+
+                    this.byId("contactPersonInput").setValue(
+                        oApplication.contactPerson || ""
+                    );
+
+                    this.byId("phoneInput").setValue(
+                        oApplication.phoneNumber || ""
+                    );
+
+                    this.byId("countrySelect").setSelectedKey(
+                        oApplication.country || ""
+                    );
+
+                    this.byId("categorySelect").setSelectedKey(
+                        oApplication.category || ""
+                    );
+
+                    this.byId("taxNumberInput").setValue(
+                        oApplication.taxNumber || ""
+                    );
+
+                    this.byId("websiteInput").setValue(
+                        oApplication.website || ""
+                    );
+
+                    this.byId("addressInput").setValue(
+                        oApplication.address || ""
+                    );
+
+                    this.byId("notesInput").setValue(
+                        oApplication.notes || ""
+                    );
+
+                    if (oApplication.phoneCountryCode) {
+                        const oPhoneCodeSelect =
+                            this.byId("phoneCodeSelect");
+
+                        const oMatchingItem = oPhoneCodeSelect
+                            .getItems()
+                            .find((oItem) =>
+                                oItem
+                                    .getText()
+                                    .includes(oApplication.phoneCountryCode)
+                            );
+
+                        if (oMatchingItem) {
+                            oPhoneCodeSelect.setSelectedKey(
+                                oMatchingItem.getKey()
+                            );
+                        }
+                    }
+
+                    console.log(
+                        "Rejected application loaded for editing:",
+                        oApplication
+                    );
+
+                } catch (oError) {
+                    console.error(
+                        "Application could not be loaded:",
+                        oError
+                    );
+                }
+            },
+            onOpenExistingCertificate: function () {
+                const sEditApplicationId =
+                    sessionStorage.getItem("editApplicationId");
+
+                if (!sEditApplicationId) {
+                    return;
+                }
+
+                window.open(
+                    `/odata/v4/supplier-management/Applications(${sEditApplicationId})/certificate`,
+                    "_blank"
+                );
+            },
+
+        _onApplicationRouteMatched: async function () {
+            const sEditApplicationId =
+                sessionStorage.getItem("editApplicationId");
+
+            // Normal başvuruysa eski veri yükleme
+            if (!sEditApplicationId) {
+                return;
+            }
+
+            try {
+                const oResponse = await fetch(
+                    `/odata/v4/supplier-management/Applications(${sEditApplicationId})`
+                );
+
+                if (!oResponse.ok) {
+                    throw new Error("Application could not be loaded.");
+                }
+
+                const oApplication = await oResponse.json();
+
+                this.byId("companyNameInput").setValue(
+                    oApplication.companyName || ""
+                );
+
+                this.byId("contactPersonInput").setValue(
+                    oApplication.contactPerson || ""
+                );
+
+                this.byId("phoneCodeSelect").setSelectedKey(
+                    oApplication.phoneCountryCode || "TR"
+                );
+
+                this.byId("phoneInput").setValue(
+                    oApplication.phoneNumber || ""
+                );
+
+                this.byId("countrySelect").setSelectedKey(
+                    oApplication.country || ""
+                );
+
+                this.byId("categorySelect").setSelectedKey(
+                    oApplication.category || ""
+                );
+
+                this.byId("taxNumberInput").setValue(
+                    oApplication.taxNumber || ""
+                );
+
+                this.byId("websiteInput").setValue(
+                    oApplication.website || ""
+                );
+
+                this.byId("addressInput").setValue(
+                    oApplication.address || ""
+                );
+
+                this.byId("notesInput").setValue(
+                    oApplication.notes || ""
+                );
+
+                console.log(
+                    "Application loaded for editing:",
+                    oApplication
+                );
+
+            } catch (error) {
+                console.error(
+                    "Application could not be loaded for editing:",
+                    error
+                );
+            }
+        },
         
 
             onFileTypeMismatch: function () {
@@ -97,9 +339,7 @@ sap.ui.define([
                     taxNumber: this.byId("taxNumberInput").getValue().trim(),
                     website: this.byId("websiteInput").getValue().trim(),
                     address: this.byId("addressInput").getValue().trim(),
-                    notes: this.byId("notesInput").getValue().trim(),
-                    certificateName: this._oCertificateFile.name,
-                    certificateType: this._oCertificateFile.type || "application/pdf"
+                    notes: this.byId("notesInput").getValue().trim()
                 };
 
                 const sPdfUrl = this._oCertificateFile
@@ -250,31 +490,61 @@ content: new VBox({
 
                         press: async () => {
                             try {
-                                const oResponse = await fetch(
-                                    "/odata/v4/supplier-management/Applications",
-                                    {
-                                        method: "POST",
-                                        headers: {
-                                            "Content-Type": "application/json"
-                                        },
-                                        body: JSON.stringify(oApplicationData)
-                                    }
-                                );
+                                const sEditApplicationId =
+                                    sessionStorage.getItem("editApplicationId");
+
+                                let oResponse;
+
+                                if (sEditApplicationId) {
+                                    // Reddedilmiş başvuruyu yeniden gönderiyoruz
+                                    oApplicationData.status = "Submitted";
+
+                                    oResponse = await fetch(
+                                        `/odata/v4/supplier-management/Applications(${sEditApplicationId})`,
+                                        {
+                                            method: "PATCH",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify(oApplicationData)
+                                        }
+                                    );
+                                } else {
+                                    // İlk başvuru
+                                    oResponse = await fetch(
+                                        "/odata/v4/supplier-management/Applications",
+                                        {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify(oApplicationData)
+                                        }
+                                    );
+                                }
 
                                 if (!oResponse.ok) {
                                     throw new Error("Application could not be saved.");
                                 }
 
-                                const oCreatedApplication = await oResponse.json();
-                                    sessionStorage.setItem(
-                                        "supplierApplicationId",
-                                        oCreatedApplication.ID
-                                    );
+                                const oSavedApplication = await oResponse.json();
+
+                                const sApplicationId =
+                                    sEditApplicationId || oSavedApplication.ID;
+
+                                sessionStorage.setItem(
+                                    "supplierApplicationId",
+                                    sApplicationId
+                                );
+
+                                // Düzenleme işlemi tamamlandı
+                                sessionStorage.removeItem("editApplicationId");
+
                                 const oFile = this._oCertificateFile;
 
                                 if (oFile) {
                                     const oUploadResponse = await fetch(
-                                        `/odata/v4/supplier-management/Applications(${oCreatedApplication.ID})/certificate`,
+                                        `/odata/v4/supplier-management/Applications(${sApplicationId})/certificate`,
                                         {
                                             method: "PUT",
                                             headers: {
@@ -288,7 +558,7 @@ content: new VBox({
                                         throw new Error("Certificate could not be uploaded.");
                                     }
                                 }
-                                console.log("Created application:", oCreatedApplication);
+                                console.log("Saved application:", oSavedApplication);
 
                                 oDialog.removeAllContent();
                                 oDialog.setTitle(oBundle.getText("applicationSuccessTitle"));
@@ -300,13 +570,13 @@ content: new VBox({
                                         alignItems: "Center",
                                         justifyContent: "Center",
                                         items: [
-new Image({
-    src: sap.ui.require.toUrl("com/abics/supplierportal/images/tik.png"),
-    width: "5rem",
-    height: "5rem",
-    decorative: false,
-    alt: "Success"
-}).addStyleClass("sapUiMediumMarginBottom"),
+                                new Image({
+                                    src: "/com.abics.supplierportal/images/tik.png",
+                                    width: "5rem",
+                                    height: "5rem",
+                                    decorative: false,
+                                    alt: "Success"
+                                }).addStyleClass("sapUiMediumMarginBottom"),
 
                                             new Title({
                                                 text: oBundle.getText("applicationSuccessMessage"),
@@ -366,16 +636,16 @@ new Image({
                     }
 
                     const sPdfJsUrl = sap.ui.require.toUrl(
-    "com/abics/supplierportal/lib/pdfjs/pdf.mjs"
-);
+                        "com/abics/supplierportal/lib/pdfjs/pdf.mjs"
+                    );
 
-const sPdfWorkerUrl = sap.ui.require.toUrl(
-    "com/abics/supplierportal/lib/pdfjs/pdf.worker.mjs"
-);
+                    const sPdfWorkerUrl = sap.ui.require.toUrl(
+                        "com/abics/supplierportal/lib/pdfjs/pdf.worker.mjs"
+                    );
 
-const pdfjsLib = await import(sPdfJsUrl);
+                    const pdfjsLib = await import(sPdfJsUrl);
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = sPdfWorkerUrl;
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = sPdfWorkerUrl;
 
                     const oArrayBuffer = await oFile.arrayBuffer();
 

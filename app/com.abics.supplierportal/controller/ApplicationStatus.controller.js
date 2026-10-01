@@ -112,7 +112,23 @@ sap.ui.define([
             this.getView().setModel(oStatusModel, "application");
 
             console.log("Application Status Data:", oApplication);
-        }
+        },
+        onEditApplication: function () {
+            const oApplication = this.getView()
+                .getModel("application")
+                .getData();
+
+            // Düzenlenecek başvurunun ID'sini sakla
+            sessionStorage.setItem(
+                "editApplicationId",
+                oApplication.ID
+            );
+
+            // Form sayfasına dön
+            this.getOwnerComponent()
+                .getRouter()
+                .navTo("application");
+        },       
 
     });
 });

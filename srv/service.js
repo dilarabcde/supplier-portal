@@ -286,4 +286,28 @@ this.on("login", async (request) => {
 
         return user.email;
     });
+        this.on("analyzeApplication", async (request) => {
+        const applicationId = request.data.applicationId;
+
+        if (!applicationId) {
+            return request.reject(400, "Application ID is required");
+        }
+
+        const application =
+            await applicationService.getApplicationById(applicationId);
+
+        if (!application) {
+            return request.reject(404, "Application not found");
+        }
+
+        console.log("AI analysis requested for:", applicationId);
+
+        return JSON.stringify({
+            applicationId: application.ID,
+            companyName: application.companyName,
+            category: application.category,
+            status: application.status,
+            message: "AI analysis endpoint is working"
+        });
+    });
 });

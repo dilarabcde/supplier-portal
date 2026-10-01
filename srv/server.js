@@ -15,7 +15,12 @@ cds.on("bootstrap", (app) => {
     if (request.method === "OPTIONS") {
         return response.sendStatus(200);
     }
-
+    if (
+        request.method === "GET" &&
+        request.path.endsWith("/certificate")
+    ) {
+        response.setHeader("Content-Disposition", "inline");
+    }
     next();
 });
 

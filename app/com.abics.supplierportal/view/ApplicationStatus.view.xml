@@ -80,95 +80,130 @@
 
                 </Panel>
 
+<!-- Onay Durumu -->
+<Panel
+    headerText="{i18n>approvalStatus}"
+    class="sapUiMediumMarginTop">
 
-                <!-- Onay Durumu -->
-                <Panel
-                    headerText="{i18n>approvalStatus}"
-                    class="sapUiMediumMarginTop">
+    <content>
 
-                    <content>
+        <HBox
+            width="100%"
+            alignItems="Center"
+            justifyContent="Center"
+            wrap="Wrap"
+            class="sapUiMediumMarginTopBottom">
 
-                        <HBox
-                            justifyContent="Center"
-                            alignItems="Center"
-                            class="sapUiLargeMarginTopBottom">
+            <!-- SOL: DURUM ADIMLARI -->
+            <HBox
+                width="{= ${application>/isRejected} ? '60%' : '100%' }"
+                justifyContent="Center"
+                alignItems="Center">
+
+                <!-- 1 - Gönderildi -->
+                <VBox
+                    width="8rem"
+                    alignItems="Center">
+
+                    <Avatar
+                        displayShape="Circle"
+                        displaySize="S"
+                        src="sap-icon://accept"
+                        backgroundColor="Accent8" />
+
+                    <ObjectStatus
+                        text="{i18n>submitted}"
+                        state="{application>/submittedState}"
+                        class="sapUiSmallMarginTop" />
+
+                </VBox>
+
+                <core:Icon
+                    src="sap-icon://navigation-right-arrow"
+                    size="1.25rem"
+                    class="sapUiSmallMarginBeginEnd" />
+
+                <!-- 2 - İnceleme -->
+                <VBox
+                    width="8rem"
+                    alignItems="Center">
+
+                    <Avatar
+                        displayShape="Circle"
+                        displaySize="S"
+                        src="{= ${application>/isReviewCompleted} ? 'sap-icon://accept' : 'sap-icon://inspection' }"
+                        backgroundColor="{= ${application>/isReviewCompleted} ? 'Accent8' : ${application>/isUnderReview} ? 'Accent1' : 'Transparent' }" />
+
+                    <ObjectStatus
+                        text="{= ${application>/isReviewCompleted} ? 'İncelendi' : 'İnceleniyor' }"
+                        state="{application>/reviewState}"
+                        class="sapUiSmallMarginTop" />
+
+                </VBox>
+
+                <core:Icon
+                    src="sap-icon://navigation-right-arrow"
+                    size="1.25rem"
+                    class="sapUiSmallMarginBeginEnd" />
+
+                <!-- 3 - Sonuç -->
+                <VBox
+                    width="8rem"
+                    alignItems="Center">
+
+                    <Avatar
+                        displayShape="Circle"
+                        displaySize="S"
+                        src="{= ${application>/isRejected} ? 'sap-icon://decline' : 'sap-icon://complete' }"
+                        backgroundColor="{= ${application>/isApproved} ? 'Accent8' : ${application>/isRejected} ? 'Accent2' : 'Transparent' }" />
+
+                    <ObjectStatus
+                        text="{= ${application>/isApproved} ? 'Onaylandı' : ${application>/isRejected} ? 'Reddedildi' : 'Sonuç' }"
+                        state="{application>/resultState}"
+                        class="sapUiSmallMarginTop" />
+
+                </VBox>
+
+            </HBox>
 
 
-                            <!-- 1 - Gönderildi -->
-                            <VBox
-                                width="10rem"
-                                alignItems="Center">
+            <!-- SAĞ: SADECE REDDEDİLDİĞİNDE -->
+            <VBox
+                width="35%"
+                alignItems="Center"
+                justifyContent="Center"
+                visible="{application>/isRejected}">
 
-                                <Avatar
-                                    displayShape="Circle"
-                                    displaySize="S"
-                                    src="sap-icon://accept"
-                                    backgroundColor="Accent8" />
+                <core:Icon
+                    src="sap-icon://edit"
+                    size="2.5rem"
+                    color="#BB0000"
+                    class="sapUiSmallMarginBottom" />
 
-                                    <ObjectStatus
-                                        text="{i18n>submitted}"
-                                        state="{application>/submittedState}"
-                                        class="sapUiSmallMarginTop" />
+                <Title
+                    text="{i18n>revisionRequired}"
+                    level="H4"
+                    class="sapUiTinyMarginBottom" />
 
-                            </VBox>
+                <Text
+                    text="{i18n>rejectedEditDescription}"
+                    textAlign="Center"
+                    width="100%"
+                    class="sapUiSmallMarginBottom" />
 
+                <Button
+                    text="{i18n>editApplication}"
+                    icon="sap-icon://edit"
+                    type="Emphasized"
+                    press=".onEditApplication" />
 
-                            <!-- Ok -->
-                            <core:Icon
-                                src="sap-icon://navigation-right-arrow"
-                                size="1.5rem"
-                                class="sapUiMediumMarginBeginEnd" />
+            </VBox>
 
+        </HBox>
 
-                            <!-- 2 - İncelemede -->
-                            <VBox
-                                width="10rem"
-                                alignItems="Center">
+    </content>
 
-                                <Avatar
-                                    displayShape="Circle"
-                                    displaySize="S"
-                                    src="{= ${application>/isReviewCompleted} ? 'sap-icon://accept' : 'sap-icon://inspection' }"
-                                    backgroundColor="{= ${application>/isReviewCompleted} ? 'Accent8' : ${application>/isUnderReview} ? 'Accent1' : 'Transparent' }" />
-
-                            <ObjectStatus
-                                text="{= ${application>/isReviewCompleted} ? 'İncelendi' : 'İnceleniyor' }"
-                                state="{application>/reviewState}"
-                                class="sapUiSmallMarginTop" />
-
-                            </VBox>
-
-
-                            <!-- Ok -->
-                            <core:Icon
-                                src="sap-icon://navigation-right-arrow"
-                                size="1.5rem"
-                                class="sapUiMediumMarginBeginEnd" />
-
-
-                            <!-- 3 - Sonuç -->
-                            <VBox
-                                width="10rem"
-                                alignItems="Center">
-
-                                <Avatar
-                                    displayShape="Circle"
-                                    displaySize="S"
-                                    src="{= ${application>/isRejected} ? 'sap-icon://decline' : 'sap-icon://complete' }"
-                                    backgroundColor="{= ${application>/isApproved} ? 'Accent8' : ${application>/isRejected} ? 'Accent2' : 'Transparent' }" />
-
-                                <ObjectStatus
-                                    text="{= ${application>/isApproved} ? 'Onaylandı' : ${application>/isRejected} ? 'Reddedildi' : 'Sonuç' }"
-                                    state="{application>/resultState}"
-                                    class="sapUiSmallMarginTop" />
-
-                            </VBox>
-
-                        </HBox>
-
-                    </content>
-
-                </Panel>
+</Panel>
 
             </VBox>
 

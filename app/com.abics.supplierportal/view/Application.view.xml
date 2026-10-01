@@ -188,7 +188,21 @@
                     <Label
                         text="{i18n>certificate}"
                         required="true" />
+                    <HBox
+                        id="existingCertificateBox"
+                        visible="false"
+                        alignItems="Center"
+                        class="sapUiTinyMarginBottom">
 
+                        <core:Icon
+                            src="sap-icon://pdf-attachment"
+                            class="sapUiTinyMarginEnd" />
+
+                        <Link
+                            id="existingCertificateLink"
+                            press=".onOpenExistingCertificate" />
+
+                    </HBox>
                     <unified:FileUploader
                         id="certificateUploader"
                         width="100%"

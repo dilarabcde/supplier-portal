@@ -7,7 +7,8 @@ type ApplicationStatus : String enum {
     InReview;
     Approved;
     Rejected;
-}
+    RevisionRequested;
+};
 
 entity SupplierUsers : cuid, managed {
     email             : String(255) not null;
@@ -36,6 +37,7 @@ entity SupplierApplications : cuid, managed {
     certificate : LargeBinary
         @Core.MediaType: certificateType
         @Core.ContentDisposition.Filename: certificateName;
+        @Core.ContentDisposition.Type: 'inline'
 
     certificateName : String(255);
 

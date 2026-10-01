@@ -19,14 +19,15 @@ sap.ui.define([
 
     return BaseController.extend("com.abics.supplierapprovals.controller.Approver", {
 
-        onInit: async function () {
-            this._selectedStatus = "Pending";
-            this._selectedCategory = "";
-            this._searchQuery = "";
+onInit: function () {
+    this._selectedStatus = "Pending";
+    this._selectedCategory = "";
+    this._searchQuery = "";
 
-            await this._loadApplications();
-            this._applyFilters();
-        },
+    this._loadApplications().then(() => {
+        this._applyFilters();
+    });
+},
 
         _loadApplications: async function () {
             try {
@@ -83,31 +84,39 @@ sap.ui.define([
                     }
                 }
 
-                // Tablo sıra numarası ve durum metni
-                applications.forEach((app, index) => {
-                    app.rowNumber = index + 1;
+            // Tablo sıra numarası ve durum metni
+            const oResourceBundle = await this.getView()
+                .getModel("i18n")
+                .getResourceBundle();
 
-                    switch (app.status) {
-                        case "Submitted":
-                            app.statusText = "Gönderildi";
-                            break;
-                        case "InReview":
-                            app.statusText = "İnceleniyor";
-                            break;
-                        case "Approved":
-                            app.statusText = "Onaylandı";
-                            break;
-                        case "Rejected":
-                            app.statusText = "Reddedildi";
-                            break;
-                        default:
-                            app.statusText = app.status;
-                    }
-                });
+            applications.forEach((app, index) => {
+                app.rowNumber = index + 1;
+
+                switch (app.status) {
+                    case "Submitted":
+                        app.statusText = oResourceBundle.getText("submitted");
+                        break;
+
+                    case "InReview":
+                        app.statusText = oResourceBundle.getText("underReview");
+                        break;
+
+                    case "Approved":
+                        app.statusText = oResourceBundle.getText("approved");
+                        break;
+
+                    case "Rejected":
+                        app.statusText = oResourceBundle.getText("rejected");
+                        break;
+
+                    default:
+                        app.statusText = app.status;
+                }
+            });
             const oModel = new JSONModel({
                 applications: applications,
 
-tableTitle: "Başvurular",
+tableTitle: oResourceBundle.getText("applicationsTitle"),
 
                 counts: {
                     all: applications.length,
@@ -133,6 +142,20 @@ tableTitle: "Başvurular",
             });
 
             this.getView().setModel(oModel, "approver");
+            
+            this._selectedStatus = "";
+            this._selectedCategory = "";
+            this._searchQuery = "";
+            this._isSupplierHistoryMode = false;
+
+            setTimeout(() => {
+                const oTable = this.byId("applicationsTable");
+                const oBinding = oTable && oTable.getBinding("items");
+
+                if (oBinding) {
+                    oBinding.filter([]);
+                }
+            }, 0);
 
             console.log("Applications with emails:", applications);
 
@@ -145,8 +168,14 @@ tableTitle: "Başvurular",
 
         _applyFilters: function () {
             const aFilters = [];
-            const oBinding = this.byId("applicationsTable").getBinding("items");
 
+            const oTable = this.byId("applicationsTable");
+            const oBinding = oTable && oTable.getBinding("items");
+
+            if (!oBinding) {
+                console.error("applicationsTable items binding bulunamadı");
+                return;
+            }
             // DURUM
             if (this._selectedStatus === "Pending") {
                 aFilters.push(
@@ -226,7 +255,14 @@ onFilterApplications: function (oEvent) {
     const oModel = this.getView().getModel("approver");
 
     if (oModel) {
-        oModel.setProperty("/tableTitle", "Başvurular");
+        const oResourceBundle = this.getView()
+            .getModel("i18n")
+            .getResourceBundle();
+
+        oModel.setProperty(
+            "/tableTitle",
+            oResourceBundle.getText("applicationsTitle")
+        );
     }
 
     this._applyFilters();
@@ -242,7 +278,14 @@ onShowSuppliers: function () {
     const oModel = this.getView().getModel("approver");
 
     if (oModel) {
-        oModel.setProperty("/tableTitle", "Tedarikçiler");
+        const oResourceBundle = this.getView()
+            .getModel("i18n")
+            .getResourceBundle();
+
+        oModel.setProperty(
+            "/tableTitle",
+            oResourceBundle.getText("suppliersTitle")
+        );
     }
 
     this._applyFilters();
@@ -342,6 +385,17 @@ _openSupplierHistory: async function (oApplication) {
     try {
         const sApplicationId = oApplication.ID;
 
+        // Tedarikçinin güncel ve tam başvuru bilgilerini getir
+        const oApplicationResponse = await fetch(
+            `/odata/v4/supplier-management/Applications(${sApplicationId})`
+        );
+
+        if (!oApplicationResponse.ok) {
+            throw new Error("Application details could not be loaded");
+        }
+
+        const oFullApplication = await oApplicationResponse.json();
+
         // Başvurunun tüm geçmişini getir
         const oHistoryResponse = await fetch(
             `/odata/v4/supplier-management/ApplicationHistory?$filter=application_ID eq ${sApplicationId}&$orderby=createdAt desc`
@@ -352,7 +406,28 @@ _openSupplierHistory: async function (oApplication) {
         }
 
         const oHistoryResult = await oHistoryResponse.json();
+        const oResourceBundle = await this.getView()
+            .getModel("i18n")
+            .getResourceBundle();
 
+        const mStatusKeys = {
+            Submitted: "historySubmitted",
+            InReview: "historyInReview",
+            Approved: "historyApproved",
+            Rejected: "historyRejected"
+        };
+
+        const mActionKeys = {
+            ApplicationSubmitted: "historyApplicationSubmitted",
+            ReviewStarted: "historyReviewStarted",
+            Approved: "historyApprovedAction",
+            Rejected: "historyRejectedAction"
+        };
+
+        const mRevisionFieldKeys = {
+            certificate: "revisionFieldCertificate",
+            category: "revisionFieldCategory"
+        };
         const aHistory = (oHistoryResult.value || []).map((oItem) => {
 
             // Ret sırasında kaydettiğimiz revisionFields JSON string olarak geliyor.
@@ -368,11 +443,24 @@ _openSupplierHistory: async function (oApplication) {
                     );
                 }
             }
-
             return {
                 ...oItem,
 
-                revisionFieldsArray: aRevisionFields,
+                // Ekranda gösterilecek çevrilmiş değerler
+                statusText: mStatusKeys[oItem.status]
+                    ? oResourceBundle.getText(mStatusKeys[oItem.status])
+                    : oItem.status,
+
+                actionText: mActionKeys[oItem.action]
+                    ? oResourceBundle.getText(mActionKeys[oItem.action])
+                    : oItem.action,
+
+                revisionFieldsArray: aRevisionFields.map((sField) => ({
+                    key: sField,
+                    text: mRevisionFieldKeys[sField]
+                        ? oResourceBundle.getText(mRevisionFieldKeys[sField])
+                        : sField
+                })),
 
                 hasRevisionFields:
                     aRevisionFields.length > 0,
@@ -387,12 +475,70 @@ _openSupplierHistory: async function (oApplication) {
                     oItem.action === "Reapplied",
 
                 isReviewStarted:
-                    oItem.action === "ReviewStarted"
-            };
+                    oItem.action === "ReviewStarted",
+
+                formattedDate: oItem.createdAt
+                    ? new Date(oItem.createdAt).toLocaleString("tr-TR")
+                    : ""
+            };            
+            
         });
+        const oInitialSubmission = {
+            status: "Submitted",
+            action: "ApplicationSubmitted",
+
+            statusText: oResourceBundle.getText("historySubmitted"),
+            actionText: oResourceBundle.getText("historyApplicationSubmitted"),
+
+            createdAt: oFullApplication.createdAt,
+
+            formattedDate: oFullApplication.createdAt
+                ? new Date(oFullApplication.createdAt).toLocaleString("tr-TR")
+                : "",
+
+            isSubmitted: true,
+            isRejected: false,
+            isApproved: false,
+            isReapplied: false,
+            isReviewStarted: false,
+
+            revisionFieldsArray: [],
+            hasRevisionFields: false
+        };
+
+        aHistory.push(oInitialSubmission);
+
+        // En yeniden en eskiye sırala
+        aHistory.sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        const sLanguage = sap.ui.getCore()
+            .getConfiguration()
+            .getLanguage();
+
+        const oRegionNames = new Intl.DisplayNames(
+            [sLanguage],
+            { type: "region" }
+        );
+
+        const sCountryText = oFullApplication.country
+            ? oRegionNames.of(oFullApplication.country)
+            : "";
 
         const oSupplierHistoryData = {
-            ...oApplication,
+            ...oFullApplication,
+            supplierEmail: oApplication.supplierEmail || oApplication.email || "",
+            countryText: sCountryText,
+
+            formattedCreatedAt: oFullApplication.createdAt
+                ? new Date(oFullApplication.createdAt).toLocaleString("tr-TR")
+                : "",
+
+            formattedModifiedAt: oFullApplication.modifiedAt
+                ? new Date(oFullApplication.modifiedAt).toLocaleString("tr-TR")
+                : "",
+
+            hasCertificate: !!oFullApplication.certificateName,
 
             history: aHistory,
 
@@ -404,6 +550,7 @@ _openSupplierHistory: async function (oApplication) {
                     (oItem) => oItem.status === "Rejected"
                 )
         };
+
 
         console.log(
             "SUPPLIER HISTORY:",
@@ -444,6 +591,19 @@ _openSupplierHistory: async function (oApplication) {
             "Tedarikçi geçmişi açılamadı."
         );
     }
+},
+onOpenSupplierCertificate: function () {
+    const oModel = this.getView().getModel("supplierHistory");
+    const oApplication = oModel?.getData();
+
+    if (!oApplication?.ID) {
+        return;
+    }
+
+    window.open(
+        `/odata/v4/supplier-management/Applications(${oApplication.ID})/certificate`,
+        "_blank"
+    );
 },
 
 onCloseSupplierHistory: function () {

@@ -45,4 +45,8 @@ service SupplierManagementService {
     action getSupplierEmail(
         supplierId : UUID
     ) returns String;
+    
+    action analyzeApplication(
+        applicationId : UUID
+    ) returns LargeString;
 }
