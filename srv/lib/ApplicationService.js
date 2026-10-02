@@ -29,7 +29,18 @@ async addHistory(
             .from(SupplierApplications)
             .where({ ID: applicationId });
     }
+    async getApplicationCertificate(applicationId) {
+        const { SupplierApplications } = cds.entities('supplierportal');
 
+        return SELECT.one
+            .from(SupplierApplications)
+            .columns(
+                'certificate',
+                'certificateName',
+                'certificateType'
+            )
+            .where({ ID: applicationId });
+    }
     async updateStatus(applicationId, newStatus) {
         const { SupplierApplications } = cds.entities('supplierportal');
 

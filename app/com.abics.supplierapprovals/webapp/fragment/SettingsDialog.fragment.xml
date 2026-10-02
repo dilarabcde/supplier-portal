@@ -1,0 +1,160 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="settingsDialog"
+        title="{i18n>settings}"
+        draggable="true"
+        resizable="true">
+
+        <content>
+            <VBox class="sapUiMediumMargin">
+
+<!-- Sütunlar -->
+<Title
+    text="{i18n>columns}"
+    level="H5"
+    class="sapUiSmallMarginBottom" />
+
+<CheckBox
+    id="companyColumnCheck"
+    text="{i18n>company}"
+    selected="true"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="contactPersonColumnCheck"
+    text="{i18n>contactPerson}"
+    selected="true"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="emailColumnCheck"
+    text="{i18n>email}"
+    selected="true"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="phoneColumnCheck"
+    text="{i18n>phone}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="countryColumnCheck"
+    text="{i18n>country}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="categoryColumnCheck"
+    text="{i18n>category}"
+    selected="true"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="taxNumberColumnCheck"
+    text="{i18n>taxNumber}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="websiteColumnCheck"
+    text="{i18n>website}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="addressColumnCheck"
+    text="{i18n>address}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="notesColumnCheck"
+    text="{i18n>notes}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="submissionDateColumnCheck"
+    text="{i18n>submissionDate}"
+    selected="false"
+    select=".onColumnVisibilityChange" />
+
+<CheckBox
+    id="statusColumnCheck"
+    text="{i18n>status}"
+    selected="true"
+    select=".onColumnVisibilityChange" />
+                <!-- Sıralama -->
+                <Title
+                    text="{i18n>sorting}"
+                    level="H5"
+                    class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+
+<Select
+    id="sortSelect"
+    width="100%"
+    selectedKey=""
+    change=".onSortChange">
+
+    <core:Item
+        key=""
+        text="{i18n>selectSorting}" />
+
+    <core:Item
+        key="createdAt"
+        text="{i18n>submissionDate}" />
+
+    <core:Item
+        key="companyName"
+        text="{i18n>company}" />
+
+    <core:Item
+        key="contactPerson"
+        text="{i18n>contactPerson}" />
+
+    <core:Item
+        key="email"
+        text="{i18n>email}" />
+
+    <core:Item
+        key="phoneNumber"
+        text="{i18n>phone}" />
+
+    <core:Item
+        key="country"
+        text="{i18n>country}" />
+
+    <core:Item
+        key="category"
+        text="{i18n>category}" />
+
+    <core:Item
+        key="status"
+        text="{i18n>status}" />
+
+</Select>
+            </VBox>
+        </content>
+
+        <buttons>
+
+            <Button
+                text="{i18n>clearFilters}"
+                icon="sap-icon://clear-filter"
+                type="Transparent"
+                press=".onClearFilters" />
+
+            <Button
+                text="{i18n>close}"
+                type="Emphasized"
+                press=".onCloseSettings" />
+
+        </buttons>
+
+    </Dialog>
+
+</core:FragmentDefinition>

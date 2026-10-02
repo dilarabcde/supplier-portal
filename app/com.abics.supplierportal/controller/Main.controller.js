@@ -261,6 +261,21 @@ const hasApplication =
     applicationData.value &&
     applicationData.value.length > 0;
 
+	if (hasApplication) {
+    const currentApplication = applicationData.value[0];
+
+    sessionStorage.setItem(
+        "supplierApplicationId",
+        currentApplication.ID
+    );
+
+    console.log(
+        "LOGIN -> supplierApplicationId:",
+        currentApplication.ID
+    );
+} else {
+    sessionStorage.removeItem("supplierApplicationId");
+}
         const rememberMe = this.byId("rememberMe").getSelected();
 
         if (rememberMe) {

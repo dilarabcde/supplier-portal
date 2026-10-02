@@ -592,6 +592,129 @@ _openSupplierHistory: async function (oApplication) {
         );
     }
 },
+
+    onOpenSettings: async function () {
+        if (!this._oSettingsDialog) {
+            this._oSettingsDialog = await Fragment.load({
+                id: this.getView().getId(),
+                name: "com.abics.supplierapprovals.fragment.SettingsDialog",
+                controller: this
+            });
+
+            this.getView().addDependent(this._oSettingsDialog);
+        }
+
+        this._oSettingsDialog.open();
+    },
+
+    onCloseSettings: function () {
+        if (this._oSettingsDialog) {
+            this._oSettingsDialog.close();
+        }
+    },
+    
+onSortChange: function (oEvent) {
+    const sKey = oEvent.getSource().getSelectedKey();
+    const oTable = this.byId("applicationsTable");
+    const oBinding = oTable.getBinding("items");
+
+    if (!oBinding) {
+        return;
+    }
+
+    if (!sKey) {
+        oBinding.sort([]);
+        return;
+    }
+
+    const oSorter = new sap.ui.model.Sorter(sKey, false);
+    oBinding.sort(oSorter);
+},
+
+formatDateTime: function (sDate) {
+    if (!sDate) {
+        return "";
+    }
+
+    const oDate = new Date(sDate);
+
+    return oDate.toLocaleString("tr-TR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+},
+onColumnVisibilityChange: function () {
+    const oTable = this.byId("applicationsTable");
+    const aColumns = oTable.getColumns();
+
+    // 0 = No (her zaman görünür)
+
+    // 1 = Company
+    aColumns[1].setVisible(
+        this.byId("companyColumnCheck").getSelected()
+    );
+
+    // 2 = Contact Person
+    aColumns[2].setVisible(
+        this.byId("contactPersonColumnCheck").getSelected()
+    );
+
+    // 3 = Email
+    aColumns[3].setVisible(
+        this.byId("emailColumnCheck").getSelected()
+    );
+
+    // 4 = Phone
+    aColumns[4].setVisible(
+        this.byId("phoneColumnCheck").getSelected()
+    );
+
+    // 5 = Country
+    aColumns[5].setVisible(
+        this.byId("countryColumnCheck").getSelected()
+    );
+
+    // 6 = Category
+    aColumns[6].setVisible(
+        this.byId("categoryColumnCheck").getSelected()
+    );
+
+    // 7 = Tax Number
+    aColumns[7].setVisible(
+        this.byId("taxNumberColumnCheck").getSelected()
+    );
+
+    // 8 = Website
+    aColumns[8].setVisible(
+        this.byId("websiteColumnCheck").getSelected()
+    );
+
+    // 9 = Address
+    aColumns[9].setVisible(
+        this.byId("addressColumnCheck").getSelected()
+    );
+
+    // 10 = Notes
+    aColumns[10].setVisible(
+        this.byId("notesColumnCheck").getSelected()
+    );
+
+    // 11 = Submission Date
+    aColumns[11].setVisible(
+        this.byId("submissionDateColumnCheck").getSelected()
+    );
+
+    // 12 = Status
+    aColumns[12].setVisible(
+        this.byId("statusColumnCheck").getSelected()
+    );
+
+    // 13 = Arrow (her zaman görünür)
+},
+
 onOpenSupplierCertificate: function () {
     const oModel = this.getView().getModel("supplierHistory");
     const oApplication = oModel?.getData();
@@ -650,6 +773,59 @@ onStartReview: async function () {
 
     } catch (error) {
         console.error("Error starting review:", error);
+    }
+},
+onAIAnalyze: async function () {
+    const oModel = this.getView().getModel("selectedApplication");
+    const oApplication = oModel.getData();
+
+    if (!oApplication || !oApplication.ID) {
+        return;
+    }
+
+    console.log(
+        "AI analysis started for:",
+        oApplication.ID
+    );
+
+    try {
+        const response = await fetch(
+            "/odata/v4/supplier-management/analyzeApplication",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    applicationId: oApplication.ID
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `AI analysis failed: ${response.status}`
+            );
+        }
+
+        const result = await response.json();
+
+        const analysis =
+            typeof result.value === "string"
+                ? JSON.parse(result.value)
+                : result.value;
+
+        console.log("AI analysis result:", analysis);
+        oModel.setProperty("/aiAnalyzed", true);
+        oModel.setProperty("/aiDecision", analysis.decision || "");
+        oModel.setProperty("/aiReason", analysis.reason || "");
+        oModel.setProperty("/aiCertificateSummary", analysis.certificateSummary || "");
+
+    } catch (error) {
+        console.error(
+            "AI analysis error:",
+            error
+        );
     }
 },
         onOpenCertificate: async function () {

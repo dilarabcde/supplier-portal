@@ -67,6 +67,34 @@ sap.ui.define([
                                 ? "Error"
                                 : "None";
 
+                                const mStatusMessages = {
+                                    Submitted: {
+                                        message: oBundle.getText("applicationSubmittedMessage"),
+                                        type: "Success"
+                                    },
+                                    InReview: {
+                                        message: oBundle.getText("applicationInReviewMessage"),
+                                        type: "Warning"
+                                    },
+                                    Approved: {
+                                        message: oBundle.getText("applicationApprovedMessage"),
+                                        type: "Success"
+                                    },
+                                    Rejected: {
+                                        message: oBundle.getText("applicationRejectedMessage"),
+                                        type: "Error"
+                                    }
+                                };
+
+                                const oStatusMessage = mStatusMessages[sStatus];
+
+                                oApplication.statusMessage = oStatusMessage
+                                    ? oStatusMessage.message
+                                    : "";
+
+                                oApplication.statusMessageType = oStatusMessage
+                                    ? oStatusMessage.type
+                                    : "Information";
 
             // 1 - Gönderildi
             oApplication.submittedState = "Success";

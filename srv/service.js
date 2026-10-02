@@ -2,7 +2,55 @@ const cds = require("@sap/cds");
 const crypto = require("crypto");
 const { Resend } = require("resend");
 const ApplicationService = require("./lib/ApplicationService");
+const fs = require("fs/promises");
+const path = require("path");
+const os = require("os");
+const { execFile } = require("child_process");
+const { promisify } = require("util");
 
+const execFileAsync = promisify(execFile);
+
+async function streamToBuffer(stream) {
+    const chunks = [];
+
+    for await (const chunk of stream) {
+        chunks.push(
+            Buffer.isBuffer(chunk)
+                ? chunk
+                : Buffer.from(chunk)
+        );
+    }
+
+    return Buffer.concat(chunks);
+}
+async function convertPdfFirstPageToPng(pdfBuffer) {
+    const tempDir = await fs.mkdtemp(
+        path.join(os.tmpdir(), "supplier-ai-")
+    );
+
+    const pdfPath = path.join(tempDir, "certificate.pdf");
+    const pngPath = path.join(tempDir, "certificate.png");
+
+    try {
+        await fs.writeFile(pdfPath, pdfBuffer);
+
+        await execFileAsync("/usr/bin/sips", [
+            "-s",
+            "format",
+            "png",
+            pdfPath,
+            "--out",
+            pngPath
+        ]);
+
+        return await fs.readFile(pngPath);
+    } finally {
+        await fs.rm(tempDir, {
+            recursive: true,
+            force: true
+        });
+    }
+}
 module.exports = cds.service.impl(function () {
 
     const applicationService = new ApplicationService();
@@ -286,7 +334,7 @@ this.on("login", async (request) => {
 
         return user.email;
     });
-        this.on("analyzeApplication", async (request) => {
+    this.on("analyzeApplication", async (request) => {
         const applicationId = request.data.applicationId;
 
         if (!applicationId) {
@@ -300,14 +348,168 @@ this.on("login", async (request) => {
             return request.reject(404, "Application not found");
         }
 
-        console.log("AI analysis requested for:", applicationId);
+        const certificate =
+            await applicationService.getApplicationCertificate(applicationId);
 
-        return JSON.stringify({
-            applicationId: application.ID,
-            companyName: application.companyName,
-            category: application.category,
-            status: application.status,
-            message: "AI analysis endpoint is working"
+        if (!certificate?.certificate) {
+            return request.reject(
+                400,
+                "Application certificate not found"
+            );
+        }
+
+        const certificateBuffer =
+            await streamToBuffer(certificate.certificate);
+        const certificateImageBuffer =
+            await convertPdfFirstPageToPng(certificateBuffer);
+
+        console.log("Certificate image:", {
+            isBuffer: Buffer.isBuffer(certificateImageBuffer),
+            size: certificateImageBuffer.length,
+            signature: certificateImageBuffer
+                .subarray(1, 4)
+                .toString()
         });
+        const certificateImageBase64 =
+            certificateImageBuffer.toString("base64");
+
+        const certificateImageDataUrl =
+            `data:image/png;base64,${certificateImageBase64}`;
+        try {
+            const openrouter =
+                await cds.connect.to("openrouter");
+
+                const response = await openrouter.send({
+                    method: "POST",
+                    path: "/chat/completions",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    data: {
+model: "openrouter/free",
+
+                        messages: [
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: `
+    You are analyzing a supplier certificate.
+
+    Supplier application information:
+    Company: ${application.companyName}
+    Category: ${application.category}
+    Country: ${application.country}
+    Tax Number: ${application.taxNumber}
+
+    Read the attached supplier certificate carefully.
+
+    Determine whether the certificate supports the supplier's declared category.
+
+    Return ONLY valid JSON in exactly this structure:
+
+    {
+    "decision": "Approved" or "Rejected",
+    "reason": "Short explanation of your decision",
+    "certificateSummary": "Short summary of what the certificate covers"
+    }
+
+    Rules:
+    - Approve only if the certificate clearly supports the declared supplier category.
+    - Reject if the certificate does not support the category.
+    - Reject if the certificate does not contain enough information to verify the category.
+    - Do not include markdown.
+    - Do not include text outside the JSON object.
+    `
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: certificateImageDataUrl
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                }
+            });
+
+            console.log(
+                "AI model:",
+                response.model
+            );
+            const fileAnnotations =
+                response?.choices?.[0]?.message?.annotations;
+
+            console.log(
+                "PDF annotations:",
+                JSON.stringify(fileAnnotations, null, 2)
+            );
+            const aiContent =
+                response?.choices?.[0]?.message?.content;
+
+            if (!aiContent) {
+                return request.reject(
+                    502,
+                    "AI returned an empty response"
+                );
+            }
+
+            let analysis;
+
+            try {
+                const cleanedContent = aiContent
+                    .replace(/```json/gi, "")
+                    .replace(/```/g, "")
+                    .trim();
+
+                analysis = JSON.parse(cleanedContent);
+            } catch (error) {
+                console.error(
+                    "Invalid AI JSON response:",
+                    aiContent
+                );
+
+                return request.reject(
+                    502,
+                    "AI returned an invalid JSON response"
+                );
+            }
+
+            if (
+                !["Approved", "Rejected"].includes(analysis.decision) ||
+                !analysis.reason ||
+                !analysis.certificateSummary
+            ) {
+                console.error(
+                    "Invalid AI analysis structure:",
+                    analysis
+                );
+
+                return request.reject(
+                    502,
+                    "AI returned an invalid analysis structure"
+                );
+            }
+
+            console.log(
+                "AI certificate analysis:",
+                analysis
+            );
+
+            return JSON.stringify(analysis);
+
+        } catch (error) {
+            console.error(
+                "OpenRouter PDF analysis error:",
+                error
+            );
+
+            return request.reject(
+                500,
+                `AI analysis failed: ${error.message}`
+            );
+        }
     });
 });

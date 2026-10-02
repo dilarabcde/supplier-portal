@@ -136,66 +136,103 @@
                     noDataText="{i18n>noApplicationsFound}">
 
                 <headerToolbar>
-                    <Toolbar>
+                <Toolbar>
+                    <Title
+                        text="{i18n>applications}" />
 
-                        <Title
-                            text="{approver>/tableTitle}"
-                            level="H3" />
+                    <ToolbarSpacer />
 
-                        <ToolbarSpacer />
+                    <SearchField
+                        width="18rem"
+                        placeholder="{i18n>searchApplications}"
+                        liveChange=".onSearchApplications" />
 
-                            <Select
-                                width="9rem"
-                                selectedKey=""
-                                change=".onCategoryFilter">
-                                <core:Item key="" text="{i18n>allCategories}" />
-                                <core:Item key="Hardware" text="Hardware" />
-                                <core:Item key="Software" text="Software" />
-                                <core:Item key="Services" text="Services" />
-                                <core:Item key="Consulting" text="Consulting" />
-                            </Select>
+                    <Button
+                        icon="sap-icon://action-settings"
+                        type="Transparent"
+                        tooltip="{i18n>settings}"
+                        press=".onOpenSettings" />
 
-                        <SearchField
-                            width="18rem"
-                            placeholder="{i18n>searchApplications}"
-                            liveChange=".onSearchApplications" />
-
-                        <Button
-                            icon="sap-icon://refresh"
-                            type="Transparent"
-                            press=".onRefresh" />
-
-                    </Toolbar>
+                    <Button
+                        icon="sap-icon://refresh"
+                        type="Transparent"
+                        press=".onRefresh" />
+                </Toolbar>
                 </headerToolbar>
 
-                    <columns>
-                        <Column width="4rem">
-                            <Text text="{i18n>number}" />
-                        </Column>
+<columns>
 
-                        <Column>
-                            <Text text="{i18n>company}" />
-                        </Column>
+    <!-- No -->
+    <Column width="4rem">
+        <Text text="{i18n>number}" />
+    </Column>
 
-                        <Column>
-                            <Text text="{i18n>contactPerson}" />
-                        </Column>
+    <!-- Company -->
+    <Column id="companyColumn">
+        <Text text="{i18n>company}" />
+    </Column>
 
-                        <Column>
-                            <Text text="{i18n>email}" />
-                        </Column>
+    <!-- Contact Person -->
+    <Column id="contactPersonColumn">
+        <Text text="{i18n>contactPerson}" />
+    </Column>
 
-                        <Column>
-                            <Text text="{i18n>category}" />
-                        </Column>
+    <!-- Email -->
+    <Column id="emailColumn">
+        <Text text="{i18n>email}" />
+    </Column>
 
-                        <Column>
-                            <Text text="{i18n>status}" />
-                        </Column>
-                        <Column
-                            width="3rem"
-                            hAlign="Center"/>
-                 </columns>
+    <!-- Phone -->
+    <Column id="phoneColumn" visible="false">
+        <Text text="{i18n>phone}" />
+    </Column>
+
+    <!-- Country -->
+    <Column id="countryColumn" visible="false">
+        <Text text="{i18n>country}" />
+    </Column>
+
+    <!-- Category -->
+    <Column id="categoryColumn">
+        <Text text="{i18n>category}" />
+    </Column>
+
+    <!-- Tax Number -->
+    <Column id="taxNumberColumn" visible="false">
+        <Text text="{i18n>taxNumber}" />
+    </Column>
+
+    <!-- Website -->
+    <Column id="websiteColumn" visible="false">
+        <Text text="{i18n>website}" />
+    </Column>
+
+    <!-- Address -->
+    <Column id="addressColumn" visible="false">
+        <Text text="{i18n>address}" />
+    </Column>
+
+    <!-- Notes -->
+    <Column id="notesColumn" visible="false">
+        <Text text="{i18n>notes}" />
+    </Column>
+
+    <!-- Submission Date -->
+    <Column id="submissionDateColumn" visible="false">
+        <Text text="{i18n>submissionDate}" />
+    </Column>
+
+    <!-- Status -->
+    <Column id="statusColumn">
+        <Text text="{i18n>status}" />
+    </Column>
+
+    <!-- Arrow -->
+    <Column
+        width="3rem"
+        hAlign="Center" />
+
+</columns>
 
                     <items>
                         <ColumnListItem>
@@ -208,8 +245,21 @@
 
                                 <Text text="{approver>supplierEmail}" />
 
+                                <Text text="{= ${approver>phoneCountryCode} + ' ' + ${approver>phoneNumber} }" />
+
+                                <Text text="{approver>country}" />
+
                                 <Text text="{approver>category}" />
 
+                                <Text text="{approver>taxNumber}" />
+
+                                <Text text="{approver>website}" />
+
+                                <Text text="{approver>address}" />
+
+                                <Text text="{approver>notes}" />
+
+                                <Text text="{path: 'approver>createdAt', formatter: '.formatDateTime'}" />
                                 <ObjectStatus
                                     text="{approver>statusText}" />
                                 <Button

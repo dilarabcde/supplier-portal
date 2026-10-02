@@ -88,12 +88,12 @@
                         <Select
                             id="phoneCodeSelect"
                             width="6rem"
-                            selectedKey="TR">
+                            selectedKey="+90">
                             <items>
-                                <core:Item key="TR" text="🇹🇷 +90" />
-                                <core:Item key="DE" text="🇩🇪 +49" />
-                                <core:Item key="US" text="🇺🇸 +1" />
-                                <core:Item key="GB" text="🇬🇧 +44" />
+                                <core:Item key="+90" text="🇹🇷 +90" />
+                                <core:Item key="+49" text="🇩🇪 +49" />
+                                <core:Item key="+1" text="🇺🇸 +1" />
+                                <core:Item key="+44" text="🇬🇧 +44" />
                             </items>
                         </Select>
 

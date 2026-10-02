@@ -79,6 +79,12 @@
                     </content>
 
                 </Panel>
+<MessageStrip
+    text="{application>/statusMessage}"
+    type="{application>/statusMessageType}"
+    showIcon="false"
+    showCloseButton="false"
+    class="sapUiMediumMarginTop" />
 
 <!-- Onay Durumu -->
 <Panel
@@ -135,7 +141,7 @@
                         backgroundColor="{= ${application>/isReviewCompleted} ? 'Accent8' : ${application>/isUnderReview} ? 'Accent1' : 'Transparent' }" />
 
                     <ObjectStatus
-                        text="{= ${application>/isReviewCompleted} ? 'İncelendi' : 'İnceleniyor' }"
+                        text="{= ${application>/isReviewCompleted} ? ${i18n>reviewed} : ${i18n>underReview} }"
                         state="{application>/reviewState}"
                         class="sapUiSmallMarginTop" />
 
@@ -158,7 +164,7 @@
                         backgroundColor="{= ${application>/isApproved} ? 'Accent8' : ${application>/isRejected} ? 'Accent2' : 'Transparent' }" />
 
                     <ObjectStatus
-                        text="{= ${application>/isApproved} ? 'Onaylandı' : ${application>/isRejected} ? 'Reddedildi' : 'Sonuç' }"
+                        text="{= ${application>/isApproved} ? ${i18n>approved} : ${application>/isRejected} ? ${i18n>rejected} : ${i18n>result} }"
                         state="{application>/resultState}"
                         class="sapUiSmallMarginTop" />
 
