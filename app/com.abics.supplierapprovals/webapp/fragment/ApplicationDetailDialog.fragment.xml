@@ -146,8 +146,8 @@
                             class="sapUiTinyMarginTop" />
 
                         <ObjectStatus
-                            text="{selectedApplication>/reviewText}"
-                            state="{selectedApplication>/reviewState}"
+                            text="{= ${selectedApplication>/status} === 'InReview' ? ${i18n>underReview} : '' }"
+                            state="{= ${selectedApplication>/status} === 'InReview' ? 'Warning' : 'None' }"
                             class="sapUiTinyMarginTop" />
 
                     </VBox>
@@ -187,9 +187,7 @@
 
                 <HBox
                     alignItems="Center"
-                    visible="{= !!${selectedApplication>/certificateName} }"
                     class="sapUiSmallMarginBottom">
-
                     <core:Icon
                         src="sap-icon://pdf-attachment"
                         size="1.5rem"
@@ -200,12 +198,17 @@
                         press=".onOpenCertificate" />
 
                 </HBox>
-
+                <MessageStrip
+                    visible="{= !!${selectedApplication>/aiRecommendationMessage} }"
+                    text="{selectedApplication>/aiRecommendationMessage}"
+                    type="{selectedApplication>/aiRecommendationType}"
+                    showIcon="true"
+                    showCloseButton="false"
+                    class="sapUiSmallMarginTop" />
                 <!-- İNCELEME / KARAR ALANI -->
                 <VBox
                     visible="{selectedApplication>/isInReview}"
                     class="sapUiMediumMarginTop">
-
                     <!-- DÜZENLENECEK ALANLAR -->
                     <Label
                         text="{i18n>revisionFields}"
@@ -216,6 +219,7 @@
                         id="revisionFields"
                         width="100%"
                         placeholder="{i18n>selectRevisionFields}"
+                        selectedKeys="{selectedApplication>/fieldsToCorrect}"
                         class="sapUiSmallMarginBottom">
 
                         <core:Item
@@ -271,12 +275,11 @@
                         width="100%"
                         rows="3"
                         maxLength="1000"
+                        value="{selectedApplication>/decisionNote}"
                         placeholder="{i18n>decisionNotePlaceholder}" />
-
                 </VBox>
 
             </VBox>
-
         </content>
 
         <buttons>

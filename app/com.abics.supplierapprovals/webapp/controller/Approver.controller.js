@@ -156,9 +156,19 @@ tableTitle: oResourceBundle.getText("applicationsTitle"),
                     oBinding.filter([]);
                 }
             }, 0);
+            applications.forEach((app) => {
+                if (app.status) {
+                    const statusMap = {
+                        submitted: "Submitted",
+                        inreview: "InReview",
+                        approved: "Approved",
+                        rejected: "Rejected"
+                    };
 
-            console.log("Applications with emails:", applications);
-
+                    app.status =
+                        statusMap[String(app.status).toLowerCase()] || app.status;
+                }
+            });
             console.log("Applications with emails:", applications);
 
             } catch (error) {
@@ -255,14 +265,7 @@ onFilterApplications: function (oEvent) {
     const oModel = this.getView().getModel("approver");
 
     if (oModel) {
-        const oResourceBundle = this.getView()
-            .getModel("i18n")
-            .getResourceBundle();
-
-        oModel.setProperty(
-            "/tableTitle",
-            oResourceBundle.getText("applicationsTitle")
-        );
+        oModel.setProperty("/tableTitle", "Başvurular");
     }
 
     this._applyFilters();
@@ -278,14 +281,7 @@ onShowSuppliers: function () {
     const oModel = this.getView().getModel("approver");
 
     if (oModel) {
-        const oResourceBundle = this.getView()
-            .getModel("i18n")
-            .getResourceBundle();
-
-        oModel.setProperty(
-            "/tableTitle",
-            oResourceBundle.getText("suppliersTitle")
-        );
+        oModel.setProperty("/tableTitle", "Tedarikçiler");
     }
 
     this._applyFilters();
@@ -612,7 +608,7 @@ _openSupplierHistory: async function (oApplication) {
             this._oSettingsDialog.close();
         }
     },
-    
+
 onSortChange: function (oEvent) {
     const sKey = oEvent.getSource().getSelectedKey();
     const oTable = this.byId("applicationsTable");
@@ -768,6 +764,8 @@ onStartReview: async function () {
         oModel.setProperty("/isApproved", false);
         oModel.setProperty("/isRejected", false);
 
+        oModel.setProperty("/reviewText", "İnceleniyor");
+        oModel.setProperty("/reviewState", "Warning");
         // Arka plandaki listeyi güncelle.
         await this._loadApplications();
 
@@ -782,7 +780,8 @@ onAIAnalyze: async function () {
     if (!oApplication || !oApplication.ID) {
         return;
     }
-
+    this._oApplicationDetailDialog.setBusyIndicatorDelay(0);
+    this._oApplicationDetailDialog.setBusy(true);
     console.log(
         "AI analysis started for:",
         oApplication.ID
@@ -816,18 +815,62 @@ onAIAnalyze: async function () {
                 : result.value;
 
         console.log("AI analysis result:", analysis);
+
         oModel.setProperty("/aiAnalyzed", true);
         oModel.setProperty("/aiDecision", analysis.decision || "");
-        oModel.setProperty("/aiReason", analysis.reason || "");
-        oModel.setProperty("/aiCertificateSummary", analysis.certificateSummary || "");
 
-    } catch (error) {
-        console.error(
-            "AI analysis error:",
-            error
+        // Düzenlenecek alanları otomatik seç
+        const aFieldsToCorrect = Array.isArray(analysis.fieldsToCorrect)
+            ? analysis.fieldsToCorrect
+            : [];
+
+        oModel.setProperty(
+            "/fieldsToCorrect",
+            aFieldsToCorrect
         );
-    }
+
+        // Karar notunu modele yaz
+        oModel.setProperty(
+            "/decisionNote",
+            analysis.decision === "Rejected"
+                ? (analysis.reason || "")
+                : ""
+        );
+
+        // AI önerisini göster
+        if (analysis.decision === "Approved") {
+            oModel.setProperty(
+                "/aiRecommendationMessage",
+                "Yapay zeka bu başvuruyu onaylamanızı öneriyor."
+            );
+            oModel.setProperty(
+                "/aiRecommendationType",
+                "Success"
+            );
+        } else if (analysis.decision === "Rejected") {
+            oModel.setProperty(
+                "/aiRecommendationMessage",
+                "Yapay zeka bu başvuruyu reddetmenizi öneriyor."
+            );
+            oModel.setProperty(
+                "/aiRecommendationType",
+                "Error"
+            );
+        }
+} catch (error) {
+    console.error(
+        "AI analysis error:",
+        error
+    );
+
+    MessageBox.error(
+        "Yapay zeka analizi tamamlanamadı. Lütfen tekrar deneyin."
+    );
+} finally {
+    this._oApplicationDetailDialog.setBusy(false);
+}
 },
+
         onOpenCertificate: async function () {
             try {
                 const oApplication = this.getView()

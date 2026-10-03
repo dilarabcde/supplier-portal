@@ -23,6 +23,28 @@ async function streamToBuffer(stream) {
 
     return Buffer.concat(chunks);
 }
+async function extractTextFromPdf(pdfBuffer) {
+    const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+    const pdf = await pdfjsLib.getDocument({
+        data: new Uint8Array(pdfBuffer)
+    }).promise;
+
+    let fullText = "";
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+        const page = await pdf.getPage(pageNumber);
+        const textContent = await page.getTextContent();
+
+        const pageText = textContent.items
+            .map(item => item.str)
+            .join(" ");
+
+        fullText += pageText + "\n";
+    }
+
+    return fullText.trim();
+}
 async function convertPdfFirstPageToPng(pdfBuffer) {
     const tempDir = await fs.mkdtemp(
         path.join(os.tmpdir(), "supplier-ai-")
@@ -360,81 +382,90 @@ this.on("login", async (request) => {
 
         const certificateBuffer =
             await streamToBuffer(certificate.certificate);
-        const certificateImageBuffer =
-            await convertPdfFirstPageToPng(certificateBuffer);
 
-        console.log("Certificate image:", {
-            isBuffer: Buffer.isBuffer(certificateImageBuffer),
-            size: certificateImageBuffer.length,
-            signature: certificateImageBuffer
-                .subarray(1, 4)
-                .toString()
-        });
-        const certificateImageBase64 =
-            certificateImageBuffer.toString("base64");
+        const certificateText =
+            await extractTextFromPdf(certificateBuffer);
 
-        const certificateImageDataUrl =
-            `data:image/png;base64,${certificateImageBase64}`;
+        console.log(
+            "Certificate text:",
+            certificateText
+        );
+
+        if (!certificateText) {
+            return request.reject(
+                400,
+                "Certificate text could not be extracted"
+            );
+        }
         try {
             const openrouter =
                 await cds.connect.to("openrouter");
 
-                const response = await openrouter.send({
-                    method: "POST",
-                    path: "/chat/completions",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    data: {
-model: "openrouter/free",
+const response = await openrouter.send({
+    method: "POST",
+    path: "/chat/completions",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`
+    },
+    data: {
+        model: "openrouter/free",
+        messages: [
+            {
+                role: "user",
+                content: `
+You are analyzing a supplier certificate.
 
-                        messages: [
-                        {
-                            role: "user",
-                            content: [
-                                {
-                                    type: "text",
-                                    text: `
-    You are analyzing a supplier certificate.
+Supplier application information:
+Company: ${application.companyName}
+Category: ${application.category}
+Country: ${application.country}
+Tax Number: ${application.taxNumber}
 
-    Supplier application information:
-    Company: ${application.companyName}
-    Category: ${application.category}
-    Country: ${application.country}
-    Tax Number: ${application.taxNumber}
+Certificate text:
+${certificateText}
 
-    Read the attached supplier certificate carefully.
+Analyze the certificate based only on the information above.
 
-    Determine whether the certificate supports the supplier's declared category.
+Return ONLY valid JSON in exactly this structure:
 
-    Return ONLY valid JSON in exactly this structure:
-
-    {
+{
     "decision": "Approved" or "Rejected",
-    "reason": "Short explanation of your decision",
-    "certificateSummary": "Short summary of what the certificate covers"
+    "reason": "One short explanation of the decision",
+    "certificateSummary": "One short sentence summarizing the certificate",
+    "fieldsToCorrect": []
+}
+
+Rules:
+- Approve if the certificate reasonably belongs to the supplier and supports the declared category.
+- Reject if the certificate clearly belongs to another company.
+- Reject if the certificate is expired.
+- Reject if the certificate clearly does not support the declared category.
+- Do not reject solely because the document contains words such as "sample", "demo", or "test".
+- Do not invent information that is not present.
+- If there is no clear problem, approve the application.
+- "fieldsToCorrect" must contain only fields that actually need correction.
+- Allowed values are: "companyName", "contactPerson", "phoneNumber", "country", "category", "taxNumber", "website", "address", "notes", "certificate".
+- If the certificate itself must be replaced, include "certificate".
+- If the company name conflicts with the certificate, include "companyName".
+- If the declared category conflicts with the certificate, include "category".
+- If nothing needs correction, return an empty array.
+- If Approved, "reason" should briefly explain why the certificate is acceptable.
+- If Rejected, "reason" should tell the supplier what must be corrected.
+- Keep "reason" to exactly one concise sentence.
+- Keep "certificateSummary" to exactly one concise sentence.
+- Do not include markdown.
+- Do not include text outside the JSON object.
+`
+            }
+        ]
     }
+});
 
-    Rules:
-    - Approve only if the certificate clearly supports the declared supplier category.
-    - Reject if the certificate does not support the category.
-    - Reject if the certificate does not contain enough information to verify the category.
-    - Do not include markdown.
-    - Do not include text outside the JSON object.
-    `
-                                },
-                                {
-                                    type: "image_url",
-                                    image_url: {
-                                        url: certificateImageDataUrl
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                }
-            });
-
+            console.log(
+                "OPENROUTER RAW RESPONSE:",
+                JSON.stringify(response, null, 2)
+            );
             console.log(
                 "AI model:",
                 response.model

@@ -46,7 +46,7 @@
       "openrouter": {
         "kind": "rest",
         "credentials": {
-          "destination": "OPENROUTER_AI"
+          "url": "https://openrouter.ai/api/v1"
         }
       },
       "[production]": {

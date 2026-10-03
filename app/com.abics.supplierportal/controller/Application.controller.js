@@ -182,6 +182,8 @@ sap.ui.define([
                             );
                         }
                     }
+                    this._existingCertificateName =
+                        oApplication.certificateName || "";
 
                     console.log(
                         "Rejected application loaded for editing:",
@@ -318,16 +320,25 @@ sap.ui.define([
 
                 const sCompanyName = this.byId("companyNameInput").getValue().trim();
                 const sContactPerson = this.byId("contactPersonInput").getValue().trim();
+
                 const oUploader = this.byId("certificateUploader");
                 const sCertificate = oUploader.getValue();
 
-                if (!sCompanyName || !sContactPerson || !sCertificate) {
+                if (!sCompanyName || !sContactPerson) {
                     sap.m.MessageToast.show(
                         oBundle.getText("requiredFieldsMissing")
                     );
-
                     return;
                 }
+                const sEditApplicationId =
+                    sessionStorage.getItem("editApplicationId");
+
+                const bIsReapply = !!sEditApplicationId;
+
+                const sExistingCertificateName =
+                    this._existingCertificateName || "";
+
+                    
                 const oApplicationData = {
                     companyName: sCompanyName,
                     contactPerson: sContactPerson,
@@ -339,12 +350,17 @@ sap.ui.define([
                     taxNumber: this.byId("taxNumberInput").getValue().trim(),
                     website: this.byId("websiteInput").getValue().trim(),
                     address: this.byId("addressInput").getValue().trim(),
-                    notes: this.byId("notesInput").getValue().trim()
+                    notes: this.byId("notesInput").getValue().trim(),
+                    certificateName: this._oCertificateFile
+                        ? this._oCertificateFile.name
+                        : (bIsReapply ? sExistingCertificateName : null)
                 };
 
                 const sPdfUrl = this._oCertificateFile
                     ? URL.createObjectURL(this._oCertificateFile)
-                    : "";
+                    : bIsReapply
+                        ? `/odata/v4/supplier-management/Applications(${sEditApplicationId})/certificate`
+                        : "";
 
                 const oDialog = new Dialog({
                     title: oBundle.getText("applicationPreview"),
@@ -461,27 +477,48 @@ content: new VBox({
             ]
         }).addStyleClass("sapUiSmallMarginBottom"),
 
-        new Panel({
-            headerText: oBundle.getText("certificateInformation"),
-            expandable: false,
-            width: "100%",
+new Panel({
+    headerText: oBundle.getText("certificateInformation"),
+    expandable: false,
+    width: "100%",
 
-            content: [
-                new ObjectStatus({
-                    text: sCertificate,
+    content: this._oCertificateFile
+        ? [
+            // Yeni sertifika seçilmiş → mevcut preview sistemi
+            new ObjectStatus({
+                text: this._oCertificateFile.name,
+                icon: "sap-icon://pdf-attachment",
+                state: "Information"
+            }).addStyleClass("sapUiSmallMarginBottom"),
+
+            new HTML({
+                content:
+                    '<div style="width:100%; text-align:center; overflow:auto;">' +
+                        '<canvas id="certificatePdfCanvas" ' +
+                        'style="max-width:100%; height:auto;"></canvas>' +
+                    '</div>'
+            })
+        ]
+        : sEditApplicationId && this._existingCertificateName
+            ? [
+                // Reapply + yeni sertifika seçilmemiş → eski sertifika linki
+                new sap.m.Link({
+                    text: this._existingCertificateName,
                     icon: "sap-icon://pdf-attachment",
-                    state: "Information"
-                }).addStyleClass("sapUiSmallMarginBottom"),
-
-                new HTML({
-                    content:
-                        '<div style="width:100%; text-align:center; overflow:auto;">' +
-                            '<canvas id="certificatePdfCanvas" ' +
-                            'style="max-width:100%; height:auto;"></canvas>' +
-                        '</div>'
+                    press: () => {
+                        window.open(
+                            `/odata/v4/supplier-management/Applications(${sEditApplicationId})/certificate`,
+                            "_blank"
+                        );
+                    }
                 })
             ]
-        })
+            : [
+                new Text({
+                    text: "-"
+                })
+            ]
+})
     ]
 }).addStyleClass("sapUiResponsiveContentPadding"),
                     beginButton: new Button({
@@ -490,8 +527,6 @@ content: new VBox({
 
                         press: async () => {
                             try {
-                                const sEditApplicationId =
-                                    sessionStorage.getItem("editApplicationId");
 
                                 let oResponse;
 
