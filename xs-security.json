@@ -1,5 +1,38 @@
 {
-  "scopes": [],
+  "xsappname": "supplier-portal",
+  "tenant-mode": "dedicated",
+
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "http://localhost:5000/login/callback"
+    ]
+  },
+
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Supplier",
+      "description": "Supplier access"
+    },
+    {
+      "name": "$XSAPPNAME.Approver",
+      "description": "Approver access"
+    }
+  ],
   "attributes": [],
-  "role-templates": []
+  "role-templates": [
+    {
+      "name": "Supplier",
+      "description": "Supplier Portal user",
+      "scope-references": [
+        "$XSAPPNAME.Supplier"
+      ]
+    },
+    {
+      "name": "Approver",
+      "description": "Supplier Approvals user",
+      "scope-references": [
+        "$XSAPPNAME.Approver"
+      ]
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "welcomeFile": "/fiori-apps.html",
-  "authenticationMethod": "none",
+  "authenticationMethod": "route",
   "routes": [
     {
       "source": "^/odata/(.*)$",
@@ -18,13 +18,14 @@
       "source": "^/com\\.abics\\.supplierapprovals/(.*)$",
       "target": "/com.abics.supplierapprovals/$1",
       "destination": "cap-backend",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa",
+      "scope": ["$XSAPPNAME.Approver"]
     },
     {
       "source": "^/(.*)$",
       "target": "$1",
       "localDir": ".",
-      "authenticationType": "none"
+      "authenticationType": "xsuaa"
     }
   ]
 }
