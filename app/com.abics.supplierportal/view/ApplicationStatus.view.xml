@@ -197,6 +197,11 @@
                     width="100%"
                     class="sapUiSmallMarginBottom" />
 
+<ObjectStatus
+    title="{i18n>decisionNote}"
+    text="{application>/rejectionReason}"
+    state="Warning"
+    class="sapUiSmallMarginBottom" />
                 <Button
                     text="{i18n>editApplication}"
                     icon="sap-icon://edit"
