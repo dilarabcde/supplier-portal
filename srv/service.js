@@ -93,7 +93,14 @@ module.exports = cds.service.impl(function () {
 
     return "Application submitted successfully";
     });
-
+    this.on("READ", "UserInfo", (req) => {
+        return {
+            id: req.user?.id || "",
+            firstName: req.user?.attr?.givenName || "",
+            lastName: req.user?.attr?.familyName || "",
+            email: req.user?.attr?.email || ""
+        };
+    });
     this.on("startReview", async (request) => {
     const application = await applicationService.getApplicationById(
         request.data.applicationId

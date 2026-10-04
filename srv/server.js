@@ -23,7 +23,6 @@ cds.on("bootstrap", (app) => {
     }
     next();
 });
-
     app.get("/verify-email", async (request, response) => {
         const token = request.query.token;
 

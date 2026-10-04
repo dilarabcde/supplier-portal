@@ -7,6 +7,13 @@ using { supplierportal as db } from '../db/schema';
 }
 
 service SupplierManagementService {
+    @readonly
+    entity UserInfo {
+        key id    : String;
+        firstName : String;
+        lastName  : String;
+        email     : String;
+    }
     entity Applications as projection on db.SupplierApplications;
     entity ApplicationHistory as projection on db.ApplicationHistory;
     entity ApplicationRevisionFields as projection on db.ApplicationRevisionFields;
